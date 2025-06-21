@@ -8,6 +8,7 @@ uses
   Classes
 , SysUtils
 , Contnrs
+, ncurses
 ;
 
 type
@@ -38,6 +39,7 @@ type
   private
   protected
     FParent: TBaseApplication;
+    FWindow: PWINDOW;
     FComponents: TFPObjectList;
   public
     constructor Create(AOwner: TBaseApplication);
@@ -54,6 +56,7 @@ type
   private
   protected
     FParent: TBaseForm;
+    FWindow: PWINDOW;
   public
     constructor Create(AOwner: TBaseForm);
     destructor Destroy; override;
