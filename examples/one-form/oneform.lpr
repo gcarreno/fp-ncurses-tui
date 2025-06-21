@@ -7,6 +7,7 @@ uses
   cthreads,
   {$ENDIF}
   Classes,
+  TUI.BaseTypes,
   TUI.Application,
   TUI.Form,
   Forms.Main

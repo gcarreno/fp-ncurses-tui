@@ -127,6 +127,11 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="TUI.Components.StaticText"/>
       </Unit>
+      <Unit>
+        <Filename Value="../../src/base/tui.basetypes.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="TUI.BaseTypes"/>
+      </Unit>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
