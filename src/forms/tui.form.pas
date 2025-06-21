@@ -19,7 +19,6 @@ type
   private
   protected
     FCaption: String;
-    FHasColor: Boolean;
 
     FComponents: TFPObjectList;
     FFocusedComponent: TBaseComponent;
@@ -31,6 +30,7 @@ type
 
     procedure HandleMessage(AMessage: TMessage); override;
     function AddComponent(AComponent: TBaseComponent): Integer;
+    function ComponentAt(AX, AY: LongInt): TBaseComponent;
 
   published
     property Caption: String
@@ -98,13 +98,31 @@ begin
   otherwise
     // Silence the warning
   end;
-  Application.Debug(Format('IsFocused: %b', [FIsFocused]));
+  Application.Debug(Format('Form IsFocused: %b', [FIsFocused]));
 end;
 
 function TForm.AddComponent(AComponent: TBaseComponent): Integer;
 begin
   Result:= FComponents.Add(AComponent);
   FFocusedComponent:= AComponent;
+end;
+
+function TForm.ComponentAt(AX, AY: LongInt): TBaseComponent;
+var
+  index: Integer;
+  component: TBaseComponent;
+begin
+  Result:= nil;
+  for index:= Pred(FComponents.Count) downto 0 do
+  begin
+    component:= (FComponents[index] as TBaseComponent);
+    if (component.X <= AX) and ((component.X + component.Width) >= AX) and
+       (component.Y <= AY) and ((component.Y + component.Height) >= AY) then
+    begin
+      Result:= component;
+      break;
+    end;
+  end;
 end;
 
 procedure TForm.Paint;
@@ -117,23 +135,19 @@ begin
   Application.Debug('TForm Paint');
   { #todo -ogcarreno : Implement form painting and maybe children
     ( Loop through Invalidate? ) }
-  //if has_colors then
-  //  wbkgd(FWindow, COLOR_PAIR(1));
 
+  werase(FWindow);
   Border;
 
-  if FIsFocused then
-    mvwaddstr(FWindow, FHeight-1, FWidth-11, PChar('[Focus: Y]'))
-  else
-    mvwaddstr(FWindow, FHeight-1, FWidth-11, PChar('[Focus: N]'));
   // Caption
   if FBorderStyle <> bsNone then
   begin
     if  (Length(FName) > 0) then
-      WriteLineCentered(0, Format(cCaptionFormat, [FName]));
+      WriteTextCentered(0, Format(cCaptionFormat, [FName]));
     if  (Length(FCaption) > 0) then
-      WriteLineCentered(0, Format(cCaptionFormat, [FCaption]));
+      WriteTextCentered(0, Format(cCaptionFormat, [FCaption]));
   end;
+  wrefresh(FWindow);
 
   for index:= 0 to Pred(FComponents.Count) do
   begin
@@ -147,10 +161,8 @@ begin
     );
     Application.PostMessage(refresh);
   end;
-  Application.ProcessMessages;
 
   inherited Paint;
-  wrefresh(FWindow);
 end;
 
 end.

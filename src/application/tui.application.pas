@@ -126,7 +126,7 @@ begin
     if (form.X <= AX) and ((form.X + form.Width) >= AX) and
        (form.Y <= AY) and ((form.Y + form.Height) >= AY) then
     begin
-      result:= form;
+      Result:= form;
       break;
     end;
   end;
@@ -276,12 +276,14 @@ begin
     PostMessage(message);
   end;
   ProcessMessages;
+  {$IFDEF DEBUG}
   if Assigned(FFocusedForm) then
     mvwaddstr(stdscr, LINES-1, 0, PChar(
       Format('Focus: %s          ', [FFocusedForm.Name])
     ))
   else
     mvwaddstr(stdscr, LINES-1, 0, PChar('Focus: None          '));
+  {$ENDIF}
 
 end;
 

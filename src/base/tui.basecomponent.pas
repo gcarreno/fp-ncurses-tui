@@ -24,6 +24,7 @@ type
   , FY
   , FWidth
   , FHeight: LongInt;
+    FHasColor: Boolean;
     FInvalidated: Boolean;
     FIsFocused: Boolean;
     FCanFocus: Boolean;
@@ -41,12 +42,15 @@ type
     procedure MoveTo(AX, AY: LongInt);
     procedure WriteText(const Text: String);
     procedure WriteTextAt(AX, AY: LongInt; const Text: String);
-    procedure WriteLineCentered(AY: LongInt; const Text: String);
+    procedure WriteTextCentered(AY: LongInt; const Text: String);
     procedure Border;
 
     property Invalidated: Boolean
       read FInvalidated;
-    { #todo -ogcarreno : Implement Focus }
+    property CanFocus: Boolean
+      read FCanFocus;
+    property IsFocused: Boolean
+      read FIsFocused;
   published
     property X: LongInt
       read FX;
@@ -56,8 +60,6 @@ type
       read FWidth;
     property Height: LongInt
       read FHeight;
-    property IsFocused: Boolean
-      read FIsFocused;
     property Name: String
       read FName
       write FName;
@@ -101,7 +103,9 @@ end;
 
 procedure TBaseComponent.HandleMessage(AMessage: TMessage);
 begin
-  Application.Debug('Base HandleMessage');
+  Application.Debug(Format('Base HandleMessage: %s -------------------', [
+    TMessage.MessageTypeToStr(AMessage.MessageType)
+  ]));
   if AMessage.MessageType = mtRefresh then
     Paint;
 end;
@@ -121,7 +125,7 @@ begin
   mvwaddstr(FWindow, AY, AX, PChar(Text));
 end;
 
-procedure TBaseComponent.WriteLineCentered(AY: LongInt; const Text: String);
+procedure TBaseComponent.WriteTextCentered(AY: LongInt; const Text: String);
 var
   lx: LongInt;
 begin

@@ -23,7 +23,7 @@
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
-            <OtherUnitFiles Value="../../src/application;../../src/forms;../../src/base;forms;../../src/messages"/>
+            <OtherUnitFiles Value="../../src/application;../../src/forms;../../src/base;forms;../../src/messages;../../src/components"/>
             <UnitOutputDirectory Value="../../bin/lib/$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <Parsing>
@@ -50,9 +50,6 @@
           <Other>
             <CustomOptions Value="-FcUTF8
 -dDEBUG"/>
-            <OtherDefines Count="1">
-              <Define0 Value="DEBUG"/>
-            </OtherDefines>
           </Other>
         </CompilerOptions>
       </Item>
@@ -64,7 +61,7 @@
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
-            <OtherUnitFiles Value="../../src/application;../../src/forms;../../src/base;forms;../../src/messages"/>
+            <OtherUnitFiles Value="../../src/application;../../src/forms;../../src/base;forms;../../src/messages;../../src/components"/>
             <UnitOutputDirectory Value="../../bin/lib/$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <CodeGeneration>
@@ -125,6 +122,11 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="TUI.Message"/>
       </Unit>
+      <Unit>
+        <Filename Value="../../src/components/tui.components.statictext.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="TUI.Components.StaticText"/>
+      </Unit>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -134,7 +136,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="../../src/application;../../src/forms;../../src/base;forms;../../src/messages"/>
+      <OtherUnitFiles Value="../../src/application;../../src/forms;../../src/base;forms;../../src/messages;../../src/components"/>
       <UnitOutputDirectory Value="../../bin/lib/$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Linking>
