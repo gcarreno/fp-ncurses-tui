@@ -38,11 +38,16 @@ uses
 
 constructor TfrmMain.Create(AHasColor: Boolean);
 begin
+{$IFDEF DEBUG}
+  FX:= 32;
+{$ELSE}
   FX:= 2;
+{$ENDIF}
   FY:= 2;
   FWidth:= 35;
   FHeight:= 5;
   FBorderStyle:= bsSingleLine;
+  FCaption:= 'Main Form';
   inherited Create(AHasColor);
 end;
 
@@ -52,7 +57,7 @@ begin
   Application.Debug('frmMain Paint');
   WriteTextAt(2, 1, 'This is frmMain');
   MoveTo(5, 3);
-  WriteText('Press any key to exit');
+  WriteText('Press [ESC] to exit');
   wrefresh(FWindow);
 end;
 
@@ -63,13 +68,9 @@ begin
   case AMessage.MessageType of
     mtKey:
     begin
-      Application.Terminate;
+      if AMessage.WParam = 27 then
+        Application.Terminate;
     end;
-    //mtRefresh:
-    //begin
-    //  { #note -ogcarreno : This needs to be handled at the Base level }
-    //  Paint;
-    //end;
   otherwise
     // Silence the warning
   end;

@@ -23,19 +23,25 @@ type
     FCaption: String;
     FHasColor: Boolean;
     FBorderStyle: TBorderStyle;
+    FFocused: Boolean;
 
     procedure Paint; override;
   public
     constructor Create(AHasColor: Boolean);
     destructor Destroy; override;
 
+    procedure HandleMessage(AMessage: TMessage); override;
+
+    procedure MoveTo(AX, AY: Integer);
     procedure WriteText(const Text: String);
     procedure WriteTextAt(AX, AY: Integer; const Text: String);
-    procedure MoveTo(AX, AY: Integer);
+    procedure WriteLineCentered(AY: Integer; const Text: String);
   published
     property Caption: String
       read FCaption
       write FCaption;
+    property Focused: Boolean
+      read FFocused;
   end;
 
   TFormClass= class of TForm;
@@ -45,6 +51,9 @@ implementation
 uses
   TUI.Application
 ;
+
+const
+  cCaptionFormat = '[%s]';
 
 //const
 //  DL_HLINE: chtype = 205; // ═
@@ -77,8 +86,27 @@ begin
   inherited Destroy;
 end;
 
+procedure TForm.HandleMessage(AMessage: TMessage);
+begin
+  inherited HandleMessage(AMessage);
+  case AMessage.MessageType of
+    mtFocus:
+    begin
+      FFocused:= True;
+    end;
+    mtBlur:
+    begin
+      FFocused:= False;
+    end;
+  otherwise
+    // Silence the warning
+  end;
+end;
+
 procedure TForm.Paint;
 begin
+  if not FInvalidated then
+    exit;
   Application.Debug('TForm Paint');
   { #todo -ogcarreno : Implement form painting and maybe children
     ( Loop through Invalidate? ) }
@@ -105,6 +133,10 @@ begin
     end;
   end;
 
+  // Caption
+  if Length(FCaption) > 0  then
+    WriteLineCentered(0, Format(cCaptionFormat, [FCaption]));
+
   if FInvalidated then
     FInvalidated:= False;
   wrefresh(FWindow);
@@ -118,6 +150,14 @@ end;
 procedure TForm.WriteTextAt(AX, AY: Integer; const Text: String);
 begin
   mvwaddstr(FWindow, AY, AX, PChar(Text));
+end;
+
+procedure TForm.WriteLineCentered(AY: Integer; const Text: String);
+var
+  x: Integer;
+begin
+  x:= (FWidth - Length(Text)) div 2;
+  mvwaddstr(FWindow, AY, x, PChar(Text));
 end;
 
 procedure TForm.MoveTo(AX, AY: Integer);

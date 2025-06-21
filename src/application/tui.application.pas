@@ -25,6 +25,8 @@ type
     FWidth, FHeight: Integer;
 
     FMessages: TFPObjectList;
+
+    FFocusedForm: TForm;
     FForms: TFPObjectList;
 
     FQuit: Boolean;
@@ -37,6 +39,7 @@ type
     constructor Create;
     destructor Destroy; override;
 
+    procedure Debug(AMessage: String);
     procedure Initialize;
     procedure Run;
 
@@ -45,7 +48,7 @@ type
     procedure SetTimeout(ATimeout: Integer);
     procedure SetNoDelay(AEnabled: Boolean);
     procedure SetCursorVisibility(AVisible: Boolean);
-    function PollInput(out AMesssage: TMessage): Boolean;
+    function PollInput(out AMessage: TMessage): Boolean;
     procedure PostMessage(const AMessage: TMessage);
     function GetMessage(out AMessage: TMessage): Boolean;
     procedure DispatchMessage(const AMessage: TMessage);
@@ -53,9 +56,6 @@ type
 
     //procedure CreateForm(InstanceClass: TFormClass; out Reference);
     function AddForm(AForm: TForm): Integer;
-
-
-    procedure Debug(AMessage: String);
 
 
     property HasColor: Boolean
@@ -85,7 +85,7 @@ const
   LC_ALL = 6;
 
 // Needed to solve some UTF8 shenanigans
-procedure setlocale(cat : integer; p : pchar); cdecl; external clib;
+function setlocale(cat : integer; p : pchar):PChar; cdecl; external clib;
 
 procedure HandleResize(sig: cint); cdecl;
 var
@@ -107,24 +107,26 @@ end;
 
 procedure TApplication.Debug(AMessage: String);
 begin
-  //FDebug.Append(AMessage);
-  //waddstr(stdscr, PChar(AMessage + LineEnding));
+{$IFDEF DEBUG}
+  FDebug.Append(AMessage);
+  waddstr(stdscr, PChar(AMessage + LineEnding));
+{$ENDIF}
 end;
 
 procedure TApplication.ProcessMessages;
 var
   message: TMessage;
 begin
-  //Debug('Process Messages');
+  Debug('Process Messages');
   // Dispatch all queued messages
-  //Debug('Before GetMessage');
+  Debug('Before GetMessage');
   while GetMessage(message) do
   begin
-    //Debug(Format('Loop: %d, %d', [Ord(message.MessageType), message.WParam]));
+    Debug(Format('Loop: %s, %d', [ TMessage.MessageTypeToStr(message.MessageType), message.WParam]));
     DispatchMessage(message);
     message.Free;
   end;
-  //Debug('After GetMessage');
+  Debug('After GetMessage');
 end;
 
 constructor TApplication.Create;
@@ -132,6 +134,7 @@ begin
   FTitle:= '';
   FMessages:= TFPObjectList.Create(True);
   FForms:= TFPObjectList.Create(True);
+  FFocusedForm:= nil;
   FQuit:= False;
 
   FDebug:= TStringList.Create;
@@ -153,9 +156,12 @@ begin
 end;
 
 procedure TApplication.Initialize;
+var
+  loc: PChar;
 begin
   // Because UTF8, of course
-  setlocale(LC_ALL, '');
+  loc:= setlocale(LC_ALL, '');
+  Debug('LC_ALL: ' + String(loc));
   // Initialize ncurses
   initscr;
   FInitialized := True;
@@ -224,7 +230,7 @@ var
   index: Integer;
   message: TMessage;
 begin
-  //Debug('RedrawAllForms');
+  Debug('RedrawAllForms');
   for index:= 0 to Pred(FForms.Count) do
   begin
     if (FForms[index] as TForm).Invalidated then
@@ -261,7 +267,7 @@ begin
     curs_set(0);
 end;
 
-function TApplication.PollInput(out AMesssage: TMessage): Boolean;
+function TApplication.PollInput(out AMessage: TMessage): Boolean;
 var
   Key: Integer;
 begin
@@ -269,25 +275,25 @@ begin
   Result := Key <> ERR;
   if Result then
   begin
-    AMesssage:= TMessage.Create(
+    AMessage:= TMessage.Create(
       mtkey,
       nil,
-      FForms[0], { #todo -ogcarreno : This needs to be the focused window }
+      FFocusedForm,
       Key,
       0,
       nil
     );
-    //Debug(Format('Poll: %d, %d', [Ord(AMesssage.MessageType), AMesssage.WParam]));
+    Debug(Format('Poll: %s, %d', [TMessage.MessageTypeToStr(AMessage.MessageType), AMessage.WParam]));
   end;
 end;
 
 procedure TApplication.PostMessage(const AMessage: TMessage);
 begin
   FMessages.Add(AMessage);
-  //Debug(Format('Post(%d): %d, %d', [
-  //  FMessages.Count,
-  //  Ord(AMessage.MessageType),
-  //  AMessage.WParam]));
+  Debug(Format('Post(%d): %s, %d', [
+    FMessages.Count,
+    TMessage.MessageTypeToStr(AMessage.MessageType),
+    AMessage.WParam]));
 end;
 
 function TApplication.GetMessage(out AMessage: TMessage): Boolean;
@@ -296,26 +302,22 @@ begin
   if Result then
   begin
     AMessage:= (FMessages[0] as TMessage).Copy;
-    //Debug(Format('Get: %d, %d', [Ord(AMessage.MessageType), AMessage.WParam]));
+    Debug(Format('Get: %s, %d', [TMessage.MessageTypeToStr(AMessage.MessageType), AMessage.WParam]));
     FMessages.Delete(0);
   end;
 end;
 
 procedure TApplication.DispatchMessage(const AMessage: TMessage);
 begin
-  //Debug(Format('Dispatch: %d, %d', [Ord(AMessage.MessageType), AMessage.WParam]));
+  Debug(Format('Dispatch: %s, %d', [TMessage.MessageTypeToStr(AMessage.MessageType), AMessage.WParam]));
   if Assigned(AMessage.Target) and (AMessage.Target is TBaseComponent) then
   begin
-    //Debug('Dispatch target');
-    TBaseComponent(AMessage.Target).HandleMessage(AMessage)
+    Debug('Dispatch target');
+    TBaseComponent(AMessage.Target).HandleMessage(AMessage);
   end
   else
   begin
-    //Debug('Dispatch else');
-    //case AMessage.MessageType of
-    //  mtApplicationQuit: FQuit:= True;
-    //otherwise
-    //end;
+    Debug('Dispatch else');
   end;
 end;
 
@@ -325,8 +327,15 @@ begin
 end;
 
 function TApplication.AddForm(AForm: TForm): Integer;
+var
+  focus: TMessage;
 begin
   Result:= FForms.Add(AForm);
+  FFocusedForm:= AForm;
+  focus:= TMessage.Create(mtFocus, nil, FFocusedForm, 0, 0, nil);
+  PostMessage(focus);
+  { #todo -ogcarreno : Do we need this? }
+  //ProcessMessages;
 end;
 
 //procedure TApplication.CreateForm(InstanceClass: TFormClass; out Reference);

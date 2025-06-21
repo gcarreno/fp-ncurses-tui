@@ -16,11 +16,11 @@ type
     mtKey,     // Key pressed
     mtMouse,   // Mouse event
     mtResize,  // Resize event
-    mtCustom,  // Just in case
     mtRefresh, // Triggers a repaint
     mtClick,   // Click event
     mtFocus,   // For future form focus
     mtBlur,    // For future form focus
+    mtCustom,  // Just in case
     mtApplicationQuit  // Self explanatory
   );
 { TMessage }
@@ -42,6 +42,8 @@ type
       ALParam: Int64;
       AData: Pointer);
     destructor Destroy; override;
+
+    class function MessageTypeToStr(AMessageType: TMessageType): String;
 
     function Copy: TMessage;
 
@@ -83,6 +85,22 @@ end;
 destructor TMessage.Destroy;
 begin
   inherited Destroy;
+end;
+
+class function TMessage.MessageTypeToStr(AMessageType: TMessageType): String;
+begin
+  case AMessageType of
+  mtNone:    Result:= 'mtNone';
+  mtKey:     Result:= 'mtKey';
+  mtMouse:   Result:= 'mtMouse';
+  mtResize:  Result:= 'mtResize';
+  mtRefresh: Result:= 'mtRefresh';
+  mtClick:   Result:= 'mtClick';
+  mtFocus:   Result:= 'mtFocus';
+  mtBlur:    Result:= 'mtBlur';
+  mtCustom:  Result:= 'mtCustom';
+  mtApplicationQuit: Result:= 'mtNone';
+  end;
 end;
 
 function TMessage.Copy: TMessage;

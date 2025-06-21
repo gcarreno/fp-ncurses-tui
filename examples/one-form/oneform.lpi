@@ -47,6 +47,13 @@
               <TrashVariables Value="True"/>
             </Debugging>
           </Linking>
+          <Other>
+            <CustomOptions Value="-FcUTF8
+-dDEBUG"/>
+            <OtherDefines Count="1">
+              <Define0 Value="DEBUG"/>
+            </OtherDefines>
+          </Other>
         </CompilerOptions>
       </Item>
       <Item Name="Release">
@@ -74,6 +81,9 @@
             </Debugging>
             <LinkSmart Value="True"/>
           </Linking>
+          <Other>
+            <CustomOptions Value="-FcUTF8"/>
+          </Other>
         </CompilerOptions>
       </Item>
     </BuildModes>
@@ -127,6 +137,9 @@
       <OtherUnitFiles Value="../../src/application;../../src/forms;../../src/base;forms;../../src/messages"/>
       <UnitOutputDirectory Value="../../bin/lib/$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
+    <Other>
+      <CustomOptions Value="-FcUTF8"/>
+    </Other>
   </CompilerOptions>
   <Debugging>
     <Exceptions>
