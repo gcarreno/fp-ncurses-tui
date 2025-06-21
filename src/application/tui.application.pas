@@ -32,14 +32,15 @@ type
     FQuit: Boolean;
 
     FDebug: TStringList;
-    procedure ProcessMessages;
 
+    function WindowAt(AX, AY: LongInt): TForm;
   protected
   public
     constructor Create;
     destructor Destroy; override;
 
     procedure Debug(AMessage: String);
+    procedure ProcessMessages;
     procedure Initialize;
     procedure Run;
 
@@ -103,13 +104,64 @@ begin
   end;
 end;
 
+procedure HandleSIgnals(sig: cint); cdecl;
+begin
+  case sig of
+    SIGINT:  Application.Terminate;
+    SIGKILL: Application.Terminate;
+  end;
+end;
+
 { TApplication }
+
+function TApplication.WindowAt(AX, AY: LongInt): TForm;
+var
+  index: Integer;
+  form: TForm;
+begin
+  Result:= nil;
+  for index:= Pred(FForms.Count) downto 0 do
+  begin
+    form:= (FForms[index] as TForm);
+    if (form.X <= AX) and ((form.X + form.Width) >= AX) and
+       (form.Y <= AY) and ((form.Y + form.Height) >= AY) then
+    begin
+      result:= form;
+      break;
+    end;
+  end;
+end;
+
+constructor TApplication.Create;
+begin
+  FTitle:= '';
+  FMessages:= TFPObjectList.Create(True);
+  FForms:= TFPObjectList.Create(True);
+  FFocusedForm:= nil;
+  FQuit:= False;
+
+  FDebug:= TStringList.Create;
+end;
+
+destructor TApplication.Destroy;
+begin
+  FMessages.Free;
+  FForms.Free;
+  // Terminate ncurses
+  if FInitialized then
+    endwin();
+
+  WriteLn(FDebug.Text);
+  FDebug.Free;
+
+  inherited Destroy;
+end;
 
 procedure TApplication.Debug(AMessage: String);
 begin
 {$IFDEF DEBUG}
   FDebug.Append(AMessage);
-  waddstr(stdscr, PChar(AMessage + LineEnding));
+//  waddstr(stdscr, PChar(AMessage + LineEnding));
 {$ENDIF}
 end;
 
@@ -129,32 +181,6 @@ begin
   Debug('After GetMessage');
 end;
 
-constructor TApplication.Create;
-begin
-  FTitle:= '';
-  FMessages:= TFPObjectList.Create(True);
-  FForms:= TFPObjectList.Create(True);
-  FFocusedForm:= nil;
-  FQuit:= False;
-
-  FDebug:= TStringList.Create;
-
-end;
-
-destructor TApplication.Destroy;
-begin
-  FMessages.Free;
-  FForms.Free;
-  // Terminate ncurses
-  if FInitialized then
-    endwin();
-
-  WriteLn(FDebug.Text);
-  FDebug.Free;
-
-  inherited Destroy;
-end;
-
 procedure TApplication.Initialize;
 var
   loc: PChar;
@@ -169,8 +195,9 @@ begin
   // Common ncurses settings
   cbreak;               // Disable line buffering
   noecho;               // Don't echo pressed keys
-  keypad(stdscr, TRUE); // Enable function keys
-  meta(stdscr, TRUE);   // ?
+  keypad(stdscr, True); // Enable function keys
+  meta(stdscr, True);   // ?
+  mousemask(ALL_MOUSE_EVENTS or REPORT_MOUSE_POSITION, nil);
 
   { #note -ogcarreno : Still unsure this should not be optional }
   SetCursorVisibility(False); // Disable cursor
@@ -191,6 +218,11 @@ begin
 
   // Enable DoResize detection
   FpSignal(SIGWINCH, @HandleResize);
+
+  // Enable Signal Handling
+  FpSignal(SIGINT,  @HandleSIgnals);
+  FpSignal(SIGKILL, @HandleSIgnals);
+
   //erase;
   refresh;
 end;
@@ -233,20 +265,24 @@ begin
   Debug('RedrawAllForms');
   for index:= 0 to Pred(FForms.Count) do
   begin
-    if (FForms[index] as TForm).Invalidated then
-    begin
-      message:= TMessage.Create(
-        mtRefresh,
-        nil,
-        (FForms[index] as TForm),
-        0,
-        0,
-        nil
-      );
-      PostMessage(message);
-    end;
+    message:= TMessage.Create(
+      mtRefresh,
+      nil,
+      (FForms[index] as TForm),
+      0,
+      0,
+      nil
+    );
+    PostMessage(message);
   end;
   ProcessMessages;
+  if Assigned(FFocusedForm) then
+    mvwaddstr(stdscr, LINES-1, 0, PChar(
+      Format('Focus: %s          ', [FFocusedForm.Name])
+    ))
+  else
+    mvwaddstr(stdscr, LINES-1, 0, PChar('Focus: None          '));
+
 end;
 
 procedure TApplication.SetTimeout(ATimeout: Integer);
@@ -269,22 +305,51 @@ end;
 
 function TApplication.PollInput(out AMessage: TMessage): Boolean;
 var
-  Key: Integer;
+  key: LongInt;
+  event: MEVENT;
+  return: LongInt;
 begin
-  Key := getch;
-  Result := Key <> ERR;
-  if Result then
-  begin
-    AMessage:= TMessage.Create(
-      mtkey,
-      nil,
-      FFocusedForm,
-      Key,
-      0,
-      nil
-    );
-    Debug(Format('Poll: %s, %d', [TMessage.MessageTypeToStr(AMessage.MessageType), AMessage.WParam]));
+  key := getch;
+
+  case key of
+    ERR: Result:= False;
+    KEY_MOUSE:
+    begin
+      return:= getmouse(@event);
+      if return = OK then
+      begin
+        AMessage:= TMessage.Create(
+          mtMouse,
+          nil,
+          WindowAt(event.x, event.y),
+          event.bstate,
+          event.y shl 16 or event.x,
+          nil
+        );
+        Result:= True;
+      end
+      else
+      begin
+        Result:= False;
+      end;
+      Debug(Format('Poll: %s, %d', [TMessage.MessageTypeToStr(AMessage.MessageType), AMessage.WParam]));
+    end;
+    otherwise
+    begin
+      { #note -ogcarreno : Until the other events are complete, default to mtKey }
+      AMessage:= TMessage.Create(
+        mtkey,
+        nil,
+        FFocusedForm,
+        key,
+        0,
+        nil
+      );
+      Result:= True;
+      Debug(Format('Poll: %s, %d', [TMessage.MessageTypeToStr(AMessage.MessageType), AMessage.WParam]));
+    end;
   end;
+
 end;
 
 procedure TApplication.PostMessage(const AMessage: TMessage);
@@ -308,16 +373,42 @@ begin
 end;
 
 procedure TApplication.DispatchMessage(const AMessage: TMessage);
+var
+  message: TMessage;
 begin
   Debug(Format('Dispatch: %s, %d', [TMessage.MessageTypeToStr(AMessage.MessageType), AMessage.WParam]));
   if Assigned(AMessage.Target) and (AMessage.Target is TBaseComponent) then
   begin
     Debug('Dispatch target');
     TBaseComponent(AMessage.Target).HandleMessage(AMessage);
+    case AMessage.MessageType of
+      mtMouse:
+      begin
+        if AMessage.Target is TForm then
+          FFocusedForm:= TForm(AMessage.Target);
+      end;
+      otherwise
+    end;
   end
   else
   begin
-    Debug('Dispatch else');
+    Debug('Dispatch no target');
+    case AMessage.MessageType of
+      mtMouse:
+      begin
+        message:= TMessage.Create(
+          mtBlur,
+          nil,
+          FFocusedForm,
+          0,
+          0,
+          nil
+        );
+        PostMessage(message);
+        FFocusedForm:= nil;
+      end;
+      otherwise
+    end;
   end;
 end;
 

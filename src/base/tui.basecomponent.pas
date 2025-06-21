@@ -12,6 +12,9 @@ uses
 ;
 
 type
+{ TBorderStyle }
+  TBorderStyle = (bsNone, bsSingleLine, bsDoubleLine);
+
 { TBaseComponent }
   TBaseComponent = class(TObject)
   private
@@ -20,22 +23,41 @@ type
     FX
   , FY
   , FWidth
-  , FHeight: Integer;
+  , FHeight: LongInt;
     FInvalidated: Boolean;
+    FIsFocused: Boolean;
+    FCanFocus: Boolean;
+    FBorderStyle: TBorderStyle;
     FName: String;
 
-    procedure Paint; virtual; abstract;
+    procedure Paint; virtual;
   public
-    constructor Create(AX, AY, AWidth, AHeight: Integer);
+    constructor Create(AName: String; AX, AY, AWidth, AHeight: Integer);
     destructor Destroy; override;
 
     procedure HandleMessage(AMessage: TMessage); virtual;
     procedure Invalidate;
+
+    procedure MoveTo(AX, AY: LongInt);
+    procedure WriteText(const Text: String);
+    procedure WriteTextAt(AX, AY: LongInt; const Text: String);
+    procedure WriteLineCentered(AY: LongInt; const Text: String);
+    procedure Border;
+
     property Invalidated: Boolean
-      read FInvalidated
-      write FInvalidated;
+      read FInvalidated;
     { #todo -ogcarreno : Implement Focus }
   published
+    property X: LongInt
+      read FX;
+    property Y: LongInt
+      read FY;
+    property Width: LongInt
+      read FWidth;
+    property Height: LongInt
+      read FHeight;
+    property IsFocused: Boolean
+      read FIsFocused;
     property Name: String
       read FName
       write FName;
@@ -49,14 +71,19 @@ uses
 
 { TBaseComponent }
 
-constructor TBaseComponent.Create(AX, AY, AWidth, AHeight: Integer);
+constructor TBaseComponent.Create(AName: String; AX, AY, AWidth,
+  AHeight: Integer);
 begin
   FX := AX;
   FY := AY;
   FWidth := AWidth;
   FHeight := AHeight;
   FWindow:= newwin(FHeight, FWidth, FY, FX);
+  FInvalidated:= True;
+  FCanFocus:= True;
+  FName:= AName;
   keypad(FWindow, True);
+  meta(FWindow, True);
 end;
 
 destructor TBaseComponent.Destroy;
@@ -64,6 +91,12 @@ begin
   if Assigned(FWindow) then
     delwin(FWindow);
   inherited Destroy;
+end;
+
+procedure TBaseComponent.Paint;
+begin
+  if FInvalidated then
+    FInvalidated:= False;
 end;
 
 procedure TBaseComponent.HandleMessage(AMessage: TMessage);
@@ -76,6 +109,52 @@ end;
 procedure TBaseComponent.Invalidate;
 begin
   FInvalidated:= True;
+end;
+
+procedure TBaseComponent.WriteText(const Text: String);
+begin
+  waddstr(FWindow, PChar(Text));
+end;
+
+procedure TBaseComponent.WriteTextAt(AX, AY: LongInt; const Text: String);
+begin
+  mvwaddstr(FWindow, AY, AX, PChar(Text));
+end;
+
+procedure TBaseComponent.WriteLineCentered(AY: LongInt; const Text: String);
+var
+  lx: LongInt;
+begin
+  lx:= (FWidth - Length(Text)) div 2;
+  mvwaddstr(FWindow, AY, lx, PChar(Text));
+end;
+
+procedure TBaseComponent.Border;
+begin
+  case FBorderStyle of
+    bsNone:
+    begin
+      // Do nothing and silence the warning
+    end;
+    bsSingleLine:
+    begin
+      //box(FWindow, ACS_VLINE, ACS_HLINE);
+      box(FWindow, 0, 0);
+    end;
+    bsDoubleLine: begin
+      { #todo -ogcarreno : This needs a ton more investigation }
+      //wborder(FWindow,
+      //  DL_HLINE, DL_HLINE,
+      //  DL_VLINE, DL_VLINE,
+      //  DL_TL, DL_TR,
+      //  DL_BL, DL_BR);
+    end;
+  end;
+end;
+
+procedure TBaseComponent.MoveTo(AX, AY: LongInt);
+begin
+  wmove(FWindow, AY, AX);
 end;
 
 end.

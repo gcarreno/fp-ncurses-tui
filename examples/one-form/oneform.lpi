@@ -137,6 +137,11 @@
       <OtherUnitFiles Value="../../src/application;../../src/forms;../../src/base;forms;../../src/messages"/>
       <UnitOutputDirectory Value="../../bin/lib/$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
+    <Linking>
+      <Debugging>
+        <DebugInfoType Value="dsDwarf3"/>
+      </Debugging>
+    </Linking>
     <Other>
       <CustomOptions Value="-FcUTF8"/>
     </Other>

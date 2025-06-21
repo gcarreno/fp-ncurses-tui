@@ -15,6 +15,7 @@ type
     mtNone,
     mtKey,     // Key pressed
     mtMouse,   // Mouse event
+    // mtMouseClick, mtMouseDown, mtMouseUp, mtMouseMove, // For the future
     mtResize,  // Resize event
     mtRefresh, // Triggers a repaint
     mtClick,   // Click event

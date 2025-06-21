@@ -7,41 +7,35 @@ interface
 uses
   Classes
 , SysUtils
+, Contnrs
 , ncurses
 , TUI.BaseComponent
 , TUI.Message
 ;
 
 type
-{ TBorderStyle }
-  TBorderStyle = (bsNone, bsSingleLine, bsDoubleLine);
-
 { TForm }
   TForm = class(TBaseComponent)
   private
   protected
     FCaption: String;
     FHasColor: Boolean;
-    FBorderStyle: TBorderStyle;
-    FFocused: Boolean;
+
+    FComponents: TFPObjectList;
+    FFocusedComponent: TBaseComponent;
 
     procedure Paint; override;
   public
-    constructor Create(AHasColor: Boolean);
+    constructor Create(const AName: String;AHasColor: Boolean);
     destructor Destroy; override;
 
     procedure HandleMessage(AMessage: TMessage); override;
+    function AddComponent(AComponent: TBaseComponent): Integer;
 
-    procedure MoveTo(AX, AY: Integer);
-    procedure WriteText(const Text: String);
-    procedure WriteTextAt(AX, AY: Integer; const Text: String);
-    procedure WriteLineCentered(AY: Integer; const Text: String);
   published
     property Caption: String
       read FCaption
       write FCaption;
-    property Focused: Boolean
-      read FFocused;
   end;
 
   TFormClass= class of TForm;
@@ -72,17 +66,18 @@ const
 
 { TForm }
 
-constructor TForm.Create(AHasColor: Boolean);
+constructor TForm.Create(const AName: String; AHasColor: Boolean);
 begin
-  inherited Create(FX, FY, FWidth, FHeight);
+  inherited Create(AName, FX, FY, FWidth, FHeight);
+  FName:= AName;
   FHasColor:= AHasColor;
-  FInvalidated:= True;
-  { #todo -ogcarreno : Implement component list creation }
+  FComponents:= TFPObjectList.Create(True);
+  FFocusedComponent:= nil;
 end;
 
 destructor TForm.Destroy;
 begin
-  { #todo -ogcarreno : Implement component list destruction }
+  FComponents.Free;
   inherited Destroy;
 end;
 
@@ -92,18 +87,30 @@ begin
   case AMessage.MessageType of
     mtFocus:
     begin
-      FFocused:= True;
+      FIsFocused:= True;
+      Invalidate;
     end;
     mtBlur:
     begin
-      FFocused:= False;
+      FIsFocused:= False;
+      Invalidate;
     end;
   otherwise
     // Silence the warning
   end;
+  Application.Debug(Format('IsFocused: %b', [FIsFocused]));
+end;
+
+function TForm.AddComponent(AComponent: TBaseComponent): Integer;
+begin
+  Result:= FComponents.Add(AComponent);
+  FFocusedComponent:= AComponent;
 end;
 
 procedure TForm.Paint;
+var
+  index: Integer;
+  refresh: TMessage;
 begin
   if not FInvalidated then
     exit;
@@ -113,56 +120,37 @@ begin
   //if has_colors then
   //  wbkgd(FWindow, COLOR_PAIR(1));
 
-  case FBorderStyle of
-    bsNone:
-    begin
-      // Do nothing and silence the warning
-    end;
-    bsSingleLine:
-    begin
-      //box(FWindow, ACS_VLINE, ACS_HLINE);
-      box(FWindow, 0, 0);
-    end;
-    bsDoubleLine: begin
-      { #todo -ogcarreno : This needs a ton more investigation }
-      //wborder(FWindow,
-      //  DL_HLINE, DL_HLINE,
-      //  DL_VLINE, DL_VLINE,
-      //  DL_TL, DL_TR,
-      //  DL_BL, DL_BR);
-    end;
+  Border;
+
+  if FIsFocused then
+    mvwaddstr(FWindow, FHeight-1, FWidth-11, PChar('[Focus: Y]'))
+  else
+    mvwaddstr(FWindow, FHeight-1, FWidth-11, PChar('[Focus: N]'));
+  // Caption
+  if FBorderStyle <> bsNone then
+  begin
+    if  (Length(FName) > 0) then
+      WriteLineCentered(0, Format(cCaptionFormat, [FName]));
+    if  (Length(FCaption) > 0) then
+      WriteLineCentered(0, Format(cCaptionFormat, [FCaption]));
   end;
 
-  // Caption
-  if Length(FCaption) > 0  then
-    WriteLineCentered(0, Format(cCaptionFormat, [FCaption]));
+  for index:= 0 to Pred(FComponents.Count) do
+  begin
+    refresh:= TMessage.Create(
+      mtRefresh,
+      Self,
+      FComponents[index],
+      0,
+      0,
+      nil
+    );
+    Application.PostMessage(refresh);
+  end;
+  Application.ProcessMessages;
 
-  if FInvalidated then
-    FInvalidated:= False;
+  inherited Paint;
   wrefresh(FWindow);
-end;
-
-procedure TForm.WriteText(const Text: String);
-begin
-  waddstr(FWindow, PChar(Text));
-end;
-
-procedure TForm.WriteTextAt(AX, AY: Integer; const Text: String);
-begin
-  mvwaddstr(FWindow, AY, AX, PChar(Text));
-end;
-
-procedure TForm.WriteLineCentered(AY: Integer; const Text: String);
-var
-  x: Integer;
-begin
-  x:= (FWidth - Length(Text)) div 2;
-  mvwaddstr(FWindow, AY, x, PChar(Text));
-end;
-
-procedure TForm.MoveTo(AX, AY: Integer);
-begin
-  wmove(FWindow, AY, AX);
 end;
 
 end.
