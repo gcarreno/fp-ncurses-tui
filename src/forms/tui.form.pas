@@ -9,6 +9,7 @@ uses
 , SysUtils
 , ncurses
 , TUI.BaseComponent
+, TUI.Message
 ;
 
 type
@@ -40,6 +41,10 @@ type
 
 implementation
 
+uses
+  TUI.Application
+;
+
 //const
 //  DL_HLINE: chtype = 205; // ═
 //  DL_VLINE: chtype = 186; // ║
@@ -61,6 +66,7 @@ constructor TForm.Create(AHasColor: Boolean);
 begin
   inherited Create(FX, FY, FWidth, FHeight);
   FHasColor:= AHasColor;
+  FInvalidated:= True;
   { #todo -ogcarreno : Implement component list creation }
 end;
 
@@ -97,6 +103,8 @@ begin
     end;
   end;
 
+  if FInvalidated then
+    FInvalidated:= False;
   wrefresh(FWindow);
 end;
 

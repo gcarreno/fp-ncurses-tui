@@ -8,6 +8,7 @@ uses
   Classes
 , SysUtils
 , ncurses
+, TUI.Message
 ;
 
 type
@@ -27,7 +28,8 @@ type
     destructor Destroy; override;
 
     procedure Paint; virtual; abstract;
-    procedure Invalidate; virtual;
+    procedure HandleMessage(AMessage: TMessage); virtual; abstract;
+    procedure Invalidate;
     property Invalidated: Boolean
       read FInvalidated
       write FInvalidated;

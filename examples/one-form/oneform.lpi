@@ -23,7 +23,7 @@
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
-            <OtherUnitFiles Value="../../src/application;../../src/forms;../../src/base;forms"/>
+            <OtherUnitFiles Value="../../src/application;../../src/forms;../../src/base;forms;../../src/messages"/>
             <UnitOutputDirectory Value="../../bin/lib/$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <Parsing>
@@ -57,7 +57,7 @@
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
-            <OtherUnitFiles Value="../../src/application;../../src/forms;../../src/base;forms"/>
+            <OtherUnitFiles Value="../../src/application;../../src/forms;../../src/base;forms;../../src/messages"/>
             <UnitOutputDirectory Value="../../bin/lib/$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <CodeGeneration>
@@ -110,6 +110,11 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="Forms.Main"/>
       </Unit>
+      <Unit>
+        <Filename Value="../../src/messages/tui.message.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="TUI.Message"/>
+      </Unit>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -119,7 +124,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="../../src/application;../../src/forms;../../src/base;forms"/>
+      <OtherUnitFiles Value="../../src/application;../../src/forms;../../src/base;forms;../../src/messages"/>
       <UnitOutputDirectory Value="../../bin/lib/$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
   </CompilerOptions>

@@ -10,6 +10,8 @@ uses
 , ncurses
 , Contnrs
 , BaseUnix
+, TUI.Message
+, TUI.BaseComponent
 , TUI.Form
 ;
 
@@ -22,7 +24,13 @@ type
     FTitle: String;
     FWidth, FHeight: Integer;
 
+    FMessages: TFPObjectList;
     FForms: TFPObjectList;
+
+    FQuit: Boolean;
+
+    FDebug: TStringList;
+    procedure Debug(AMessage: String);
 
   protected
   public
@@ -33,9 +41,15 @@ type
     procedure Run;
 
     procedure DoResize(AOldWidth, AOldHeight, ANewWidth, ANewHeight: Integer);
+    procedure RedrawAllForms;
     procedure SetTimeout(ATimeout: Integer);
     procedure SetNoDelay(AEnabled: Boolean);
     procedure SetCursorVisibility(AVisible: Boolean);
+    function PollInput(out AMesssage: TMessage): Boolean;
+    procedure PostMessage(const AMessage: TMessage);
+    function GetMessage(out AMessage: TMessage): Boolean;
+    procedure DispatchMessage(const AMessage: TMessage);
+    procedure Terminate;
 
     //procedure CreateForm(InstanceClass: TFormClass; out Reference);
     function AddForm(AForm: TForm): Integer;
@@ -86,7 +100,38 @@ end;
 
 { TApplication }
 
+procedure TApplication.Debug(AMessage: String);
+begin
+  //FDebug.Append(AMessage);
+  //waddstr(stdscr, PChar(AMessage + LineEnding));
+end;
+
 constructor TApplication.Create;
+begin
+  FTitle:= '';
+  FMessages:= TFPObjectList.Create(True);
+  FForms:= TFPObjectList.Create(True);
+  FQuit:= False;
+
+  FDebug:= TStringList.Create;
+
+end;
+
+destructor TApplication.Destroy;
+begin
+  FMessages.Free;
+  FForms.Free;
+  // Terminate ncurses
+  if FInitialized then
+    endwin();
+
+  WriteLn(FDebug.Text);
+  FDebug.Free;
+
+  inherited Destroy;
+end;
+
+procedure TApplication.Initialize;
 begin
   // Because UTF8, of course
   setlocale(LC_ALL, '');
@@ -119,36 +164,37 @@ begin
 
   // Enable DoResize detection
   FpSignal(SIGWINCH, @HandleResize);
-
-  FTitle:= '';
-  FForms:= TFPObjectList.Create(True);
-end;
-
-destructor TApplication.Destroy;
-begin
-  FForms.Free;
-  // Terminate ncurses
-  if FInitialized then
-    endwin();
-  inherited Destroy;
-end;
-
-procedure TApplication.Initialize;
-begin
   //erase;
   refresh;
 end;
 
 procedure TApplication.Run;
 var
-  index: Integer;
+  message: TMessage;
 begin
-  for index:= 0 to Pred(FForms.Count) do
+  while not FQuit do
   begin
-    (FForms[index] as TForm).Paint;
+    // Redraw everything
+    RedrawAllForms;
+
+    // Poll input and post as message
+    if PollInput(message) then
+    begin
+      PostMessage(message);
+    end;
+
+    // Dispatch all queued messages
+    Debug('Before GetMessage');
+    while GetMessage(message) do
+    begin
+      Debug(Format('Loop: %d, %d', [Ord(message.MessageType), message.WParam]));
+      DispatchMessage(message);
+      message.Free;
+    end;
+    Debug('After GetMessage');
+
+    napms(10);
   end;
-  { #todo -ogcarreno : Implement the message system loop here }
-  getch;
 end;
 
 procedure TApplication.DoResize(AOldWidth, AOldHeight, ANewWidth,
@@ -158,6 +204,18 @@ begin
   FHeight:= ANewHeight;
   FWidth:= ANewWidth;
   { #todo -ogcarreno : Implement Resize }
+end;
+
+procedure TApplication.RedrawAllForms;
+var
+  index: Integer;
+begin
+  Debug('RedrawAllForms');
+  for index:= 0 to Pred(FForms.Count) do
+  begin
+    if (FForms[index] as TForm).Invalidated then
+      (FForms[index] as TForm).Paint;
+  end;
 end;
 
 procedure TApplication.SetTimeout(ATimeout: Integer);
@@ -176,6 +234,69 @@ begin
     curs_set(1)
   else
     curs_set(0);
+end;
+
+function TApplication.PollInput(out AMesssage: TMessage): Boolean;
+var
+  Key: Integer;
+begin
+  Key := getch;
+  Result := Key <> ERR;
+  if Result then
+  begin
+    AMesssage:= TMessage.Create(
+      mtkey,
+      nil,
+      FForms[0], { #todo -ogcarreno : This needs to be the focused window }
+      Key,
+      0,
+      nil
+    );
+    Debug(Format('Poll: %d, %d', [Ord(AMesssage.MessageType), AMesssage.WParam]));
+  end;
+end;
+
+procedure TApplication.PostMessage(const AMessage: TMessage);
+begin
+  FMessages.Add(AMessage);
+  Debug(Format('Post(%d): %d, %d', [
+    FMessages.Count,
+    Ord(AMessage.MessageType),
+    AMessage.WParam]));
+end;
+
+function TApplication.GetMessage(out AMessage: TMessage): Boolean;
+begin
+  Result:= FMessages.Count > 0;
+  if Result then
+  begin
+    AMessage:= (FMessages[0] as TMessage).Copy;
+    Debug(Format('Get: %d, %d', [Ord(AMessage.MessageType), AMessage.WParam]));
+    FMessages.Delete(0);
+  end;
+end;
+
+procedure TApplication.DispatchMessage(const AMessage: TMessage);
+begin
+  Debug(Format('Dispatch: %d, %d', [Ord(AMessage.MessageType), AMessage.WParam]));
+  if Assigned(AMessage.Target) and (AMessage.Target is TBaseComponent) then
+  begin
+    Debug('Dispatch target');
+    TBaseComponent(AMessage.Target).HandleMessage(AMessage)
+  end
+  else
+  begin
+    Debug('Dispatch else');
+    //case AMessage.MessageType of
+    //  mtApplicationQuit: FQuit:= True;
+    //otherwise
+    //end;
+  end;
+end;
+
+procedure TApplication.Terminate;
+begin
+  FQuit:= True;
 end;
 
 function TApplication.AddForm(AForm: TForm): Integer;
