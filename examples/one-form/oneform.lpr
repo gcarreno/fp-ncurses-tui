@@ -23,9 +23,6 @@ begin
   frmMain:= TfrmMain.Create(1, 1, 35, 5, bsSingleLine);
   //frmMain:= TForm.Create(1, 1, 35, 5);
   try
-    frmMain.WriteTextAt(1, 1, 'This is frmMain talking');
-    frmMain.MoveTo(15, 2);
-    frmMain.WriteText('Treta');
     frmMain.Paint;
 
     Application.Run;
