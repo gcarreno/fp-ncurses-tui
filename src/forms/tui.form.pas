@@ -20,10 +20,11 @@ type
   private
   protected
     FCaption: String;
+    FHasColor: Boolean;
     FBorderStyle: TBorderStyle;
   public
     constructor Create(AX, AY, AWidth, AHeight: Integer;
-      ABorderStyle: TBorderStyle = bsNone);
+      AHasColor:Boolean; ABorderStyle: TBorderStyle = bsNone);
     destructor Destroy; override;
 
     procedure Paint; override;
@@ -38,13 +39,13 @@ type
 
 implementation
 
-const
-  DL_HLINE: chtype = 205; // ═
-  DL_VLINE: chtype = 186; // ║
-  DL_TL: chtype    = 201; // ╔
-  DL_TR: chtype    = 187; // ╗
-  DL_BL: chtype    = 200; // ╚
-  DL_BR: chtype    = 188; // ╝
+//const
+//  DL_HLINE: chtype = 205; // ═
+//  DL_VLINE: chtype = 186; // ║
+//  DL_TL: chtype    = 201; // ╔
+//  DL_TR: chtype    = 187; // ╗
+//  DL_BL: chtype    = 200; // ╚
+//  DL_BR: chtype    = 188; // ╝
 
   //DL_HLINE = '═';
   //DL_VLINE = '║';
@@ -55,10 +56,11 @@ const
 
 { TForm }
 
-constructor TForm.Create(AX, AY, AWidth, AHeight: Integer;
+constructor TForm.Create(AX, AY, AWidth, AHeight: Integer; AHasColor: Boolean;
   ABorderStyle: TBorderStyle);
 begin
   inherited Create(AX, AY, AWidth, AHeight);
+  FHasColor:= AHasColor;
   FBorderStyle:= ABorderStyle;
   { #todo -ogcarreno : Implement component list creation }
 end;
@@ -95,18 +97,6 @@ begin
       //  DL_BL, DL_BR);
     end;
   end;
-  //if FBorderStyle = bsSingleLine then
-  //begin
-  //  { #note -ogcarreno : Need to understand why this is not working }
-  //  box(FWindow, ACS_VLINE, ACS_HLINE);
-  //  //box(FWindow, 0, 0);
-  //end;
-  //if FBorderStyle = bsDoubleLine then
-  //begin
-  //  { #note -ogcarreno : Not even sure this can be done }
-  //  //box(FWindow, ACS_VLINE, ACS_HLINE);
-  //  //box(FWindow, 0, 0);
-  //end;
 
   wrefresh(FWindow);
 end;

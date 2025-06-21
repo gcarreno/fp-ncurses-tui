@@ -19,17 +19,11 @@ begin
   Application.Title:= 'One Form';
   Application.Initialize;
 
-  { #note -ogcarreno : Temp form handling, before list of Forms implemented }
-  frmMain:= TfrmMain.Create(1, 1, 35, 5, bsSingleLine);
-  //frmMain:= TForm.Create(1, 1, 35, 5);
-  try
-    frmMain.Paint;
+  { #todo -ogcarreno : Consider the `LCL` approach of `CreateForm` }
+  frmMain:= TfrmMain.Create(1, 1, 35, 5, Application.HasColor, bsSingleLine);
 
-    Application.Run;
-
-  finally
-    frmMain.Free;
-  end;
+  Application.AddForm(frmMain);
+  Application.Run;
 
 end.
 

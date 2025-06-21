@@ -8,6 +8,7 @@ uses
   Classes
 , SysUtils
 , ncurses
+, Contnrs
 , BaseUnix
 , TUI.Form
 ;
@@ -20,6 +21,8 @@ type
     FHasColor: Boolean;
     FTitle: String;
     FWidth, FHeight: Integer;
+
+    FForms: TFPObjectList;
 
   protected
   public
@@ -34,6 +37,10 @@ type
     procedure SetNoDelay(AEnabled: Boolean);
     procedure SetCursorVisibility(AVisible: Boolean);
 
+    function AddForm(AForm: TForm): Integer;
+
+    property HasColor: Boolean
+      read FHasColor;
     property Title: String
       read FTitle
       write FTitle;
@@ -87,9 +94,11 @@ begin
   FInitialized := True;
 
   // Common ncurses settings
-  cbreak;                     // Disable line buffering
-  noecho;                     // Don't echo pressed keys
-  keypad(stdscr, TRUE);       // Enable function keys
+  cbreak;               // Disable line buffering
+  noecho;               // Don't echo pressed keys
+  keypad(stdscr, TRUE); // Enable function keys
+  meta(stdscr, TRUE);   // ?
+
   { #note -ogcarreno : Still unsure this should not be optional }
   SetCursorVisibility(False); // Disable cursor
   { #note -ogcarreno : Not sure about these }
@@ -111,10 +120,12 @@ begin
   FpSignal(SIGWINCH, @HandleResize);
 
   FTitle:= '';
+  FForms:= TFPObjectList.Create(True);
 end;
 
 destructor TApplication.Destroy;
 begin
+  FForms.Free;
   // Terminate ncurses
   if FInitialized then
     endwin();
@@ -128,7 +139,13 @@ begin
 end;
 
 procedure TApplication.Run;
+var
+  index: Integer;
 begin
+  for index:= 0 to Pred(FForms.Count) do
+  begin
+    (FForms[index] as TForm).Paint;
+  end;
   { #todo -ogcarreno : Implement the message system loop here }
   getch;
 end;
@@ -158,6 +175,11 @@ begin
     curs_set(1)
   else
     curs_set(0);
+end;
+
+function TApplication.AddForm(AForm: TForm): Integer;
+begin
+  Result:= FForms.Add(AForm);
 end;
 
 initialization
