@@ -8,3 +8,7 @@
 [![Downloads](https://img.shields.io/github/downloads/gcarreno/fp-ncurses-tui/total)](https://github.com/gcarreno/fp-ncurses-tui/releases)
 
 This is an attempt to recreate, as much as possible, the pattern used in the `LCL` but instead of a graphic environment, we wrap the well known `ncurses` lib.
+
+## Screen Shots
+
+[!fp-ncurses-tui-example-one-form](img/fp-ncurses-tui-example-one-form.png)
