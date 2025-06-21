@@ -12,16 +12,10 @@ uses
   Forms.Main
   { you can add units after this };
 
-var
-  frmMain: TfrmMain;
-
 begin
   Application.Title:= 'One Form';
   Application.Initialize;
-
-  { #todo -ogcarreno : Consider the `LCL` approach of `CreateForm` }
-  frmMain:= TfrmMain.Create(1, 1, 35, 5, Application.HasColor, bsSingleLine);
-
+  frmMain:= TfrmMain.Create(Application.HasColor);
   Application.AddForm(frmMain);
   Application.Run;
 

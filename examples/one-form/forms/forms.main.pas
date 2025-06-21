@@ -17,6 +17,8 @@ type
   private
   protected
   public
+    constructor Create(AHasColor: Boolean);
+
     procedure Paint; override;
   published
   end;
@@ -27,6 +29,16 @@ var
 implementation
 
 { TfrmMain }
+
+constructor TfrmMain.Create(AHasColor: Boolean);
+begin
+  FX:= 1;
+  FY:= 1;
+  FWidth:= 35;
+  FHeight:= 5;
+  FBorderStyle:= bsSingleLine;
+  inherited Create(AHasColor);
+end;
 
 procedure TfrmMain.Paint;
 begin

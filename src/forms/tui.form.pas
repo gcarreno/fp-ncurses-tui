@@ -23,8 +23,7 @@ type
     FHasColor: Boolean;
     FBorderStyle: TBorderStyle;
   public
-    constructor Create(AX, AY, AWidth, AHeight: Integer;
-      AHasColor:Boolean; ABorderStyle: TBorderStyle = bsNone);
+    constructor Create(AHasColor: Boolean);
     destructor Destroy; override;
 
     procedure Paint; override;
@@ -36,6 +35,8 @@ type
       read FCaption
       write FCaption;
   end;
+
+  TFormClass= class of TForm;
 
 implementation
 
@@ -56,12 +57,10 @@ implementation
 
 { TForm }
 
-constructor TForm.Create(AX, AY, AWidth, AHeight: Integer; AHasColor: Boolean;
-  ABorderStyle: TBorderStyle);
+constructor TForm.Create(AHasColor: Boolean);
 begin
-  inherited Create(AX, AY, AWidth, AHeight);
+  inherited Create(FX, FY, FWidth, FHeight);
   FHasColor:= AHasColor;
-  FBorderStyle:= ABorderStyle;
   { #todo -ogcarreno : Implement component list creation }
 end;
 

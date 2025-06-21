@@ -37,6 +37,7 @@ type
     procedure SetNoDelay(AEnabled: Boolean);
     procedure SetCursorVisibility(AVisible: Boolean);
 
+    //procedure CreateForm(InstanceClass: TFormClass; out Reference);
     function AddForm(AForm: TForm): Integer;
 
     property HasColor: Boolean
@@ -181,6 +182,30 @@ function TApplication.AddForm(AForm: TForm): Integer;
 begin
   Result:= FForms.Add(AForm);
 end;
+
+//procedure TApplication.CreateForm(InstanceClass: TFormClass; out Reference);
+//var
+//  Instance: TForm;
+//  ok: Boolean;
+//begin
+//  // Allocate the instance, without calling the constructor
+//  Instance := TForm(InstanceClass.NewInstance);
+//  // set the Reference before the constructor is called, so that
+//  // events and constructors can refer to it
+//  TForm(Reference) := Instance;
+//
+//  ok:= False;
+//  try
+//    Instance.Create(FHasColor);
+//    FForms.Add(Instance);
+//    ok:= True;
+//  finally
+//    if not ok then
+//    begin
+//      TForm(Reference):= nil;
+//    end;
+//  end;
+//end;
 
 initialization
 
