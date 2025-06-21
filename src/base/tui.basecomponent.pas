@@ -23,12 +23,13 @@ type
   , FHeight: Integer;
     FInvalidated: Boolean;
     FName: String;
+
+    procedure Paint; virtual; abstract;
   public
     constructor Create(AX, AY, AWidth, AHeight: Integer);
     destructor Destroy; override;
 
-    procedure Paint; virtual; abstract;
-    procedure HandleMessage(AMessage: TMessage); virtual; abstract;
+    procedure HandleMessage(AMessage: TMessage); virtual;
     procedure Invalidate;
     property Invalidated: Boolean
       read FInvalidated
@@ -41,6 +42,10 @@ type
   end;
 
 implementation
+
+uses
+  TUI.Application
+;
 
 { TBaseComponent }
 
@@ -59,6 +64,13 @@ begin
   if Assigned(FWindow) then
     delwin(FWindow);
   inherited Destroy;
+end;
+
+procedure TBaseComponent.HandleMessage(AMessage: TMessage);
+begin
+  Application.Debug('Base HandleMessage');
+  if AMessage.MessageType = mtRefresh then
+    Paint;
 end;
 
 procedure TBaseComponent.Invalidate;

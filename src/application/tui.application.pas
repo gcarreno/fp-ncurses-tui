@@ -30,7 +30,7 @@ type
     FQuit: Boolean;
 
     FDebug: TStringList;
-    procedure Debug(AMessage: String);
+    procedure ProcessMessages;
 
   protected
   public
@@ -53,6 +53,10 @@ type
 
     //procedure CreateForm(InstanceClass: TFormClass; out Reference);
     function AddForm(AForm: TForm): Integer;
+
+
+    procedure Debug(AMessage: String);
+
 
     property HasColor: Boolean
       read FHasColor;
@@ -94,6 +98,7 @@ begin
     if (Application.Width <> NewWidth) or (Application.Height <> NewHeight) then
     begin
       Application.DoResize(Application.Width, Application.Height, NewWidth, NewHeight);
+      Application.RedrawAllForms;
     end;
   end;
 end;
@@ -104,6 +109,22 @@ procedure TApplication.Debug(AMessage: String);
 begin
   //FDebug.Append(AMessage);
   //waddstr(stdscr, PChar(AMessage + LineEnding));
+end;
+
+procedure TApplication.ProcessMessages;
+var
+  message: TMessage;
+begin
+  //Debug('Process Messages');
+  // Dispatch all queued messages
+  //Debug('Before GetMessage');
+  while GetMessage(message) do
+  begin
+    //Debug(Format('Loop: %d, %d', [Ord(message.MessageType), message.WParam]));
+    DispatchMessage(message);
+    message.Free;
+  end;
+  //Debug('After GetMessage');
 end;
 
 constructor TApplication.Create;
@@ -183,15 +204,7 @@ begin
       PostMessage(message);
     end;
 
-    // Dispatch all queued messages
-    Debug('Before GetMessage');
-    while GetMessage(message) do
-    begin
-      Debug(Format('Loop: %d, %d', [Ord(message.MessageType), message.WParam]));
-      DispatchMessage(message);
-      message.Free;
-    end;
-    Debug('After GetMessage');
+    ProcessMessages;
 
     napms(10);
   end;
@@ -209,13 +222,25 @@ end;
 procedure TApplication.RedrawAllForms;
 var
   index: Integer;
+  message: TMessage;
 begin
-  Debug('RedrawAllForms');
+  //Debug('RedrawAllForms');
   for index:= 0 to Pred(FForms.Count) do
   begin
     if (FForms[index] as TForm).Invalidated then
-      (FForms[index] as TForm).Paint;
+    begin
+      message:= TMessage.Create(
+        mtRefresh,
+        nil,
+        (FForms[index] as TForm),
+        0,
+        0,
+        nil
+      );
+      PostMessage(message);
+    end;
   end;
+  ProcessMessages;
 end;
 
 procedure TApplication.SetTimeout(ATimeout: Integer);
@@ -252,17 +277,17 @@ begin
       0,
       nil
     );
-    Debug(Format('Poll: %d, %d', [Ord(AMesssage.MessageType), AMesssage.WParam]));
+    //Debug(Format('Poll: %d, %d', [Ord(AMesssage.MessageType), AMesssage.WParam]));
   end;
 end;
 
 procedure TApplication.PostMessage(const AMessage: TMessage);
 begin
   FMessages.Add(AMessage);
-  Debug(Format('Post(%d): %d, %d', [
-    FMessages.Count,
-    Ord(AMessage.MessageType),
-    AMessage.WParam]));
+  //Debug(Format('Post(%d): %d, %d', [
+  //  FMessages.Count,
+  //  Ord(AMessage.MessageType),
+  //  AMessage.WParam]));
 end;
 
 function TApplication.GetMessage(out AMessage: TMessage): Boolean;
@@ -271,22 +296,22 @@ begin
   if Result then
   begin
     AMessage:= (FMessages[0] as TMessage).Copy;
-    Debug(Format('Get: %d, %d', [Ord(AMessage.MessageType), AMessage.WParam]));
+    //Debug(Format('Get: %d, %d', [Ord(AMessage.MessageType), AMessage.WParam]));
     FMessages.Delete(0);
   end;
 end;
 
 procedure TApplication.DispatchMessage(const AMessage: TMessage);
 begin
-  Debug(Format('Dispatch: %d, %d', [Ord(AMessage.MessageType), AMessage.WParam]));
+  //Debug(Format('Dispatch: %d, %d', [Ord(AMessage.MessageType), AMessage.WParam]));
   if Assigned(AMessage.Target) and (AMessage.Target is TBaseComponent) then
   begin
-    Debug('Dispatch target');
+    //Debug('Dispatch target');
     TBaseComponent(AMessage.Target).HandleMessage(AMessage)
   end
   else
   begin
-    Debug('Dispatch else');
+    //Debug('Dispatch else');
     //case AMessage.MessageType of
     //  mtApplicationQuit: FQuit:= True;
     //otherwise

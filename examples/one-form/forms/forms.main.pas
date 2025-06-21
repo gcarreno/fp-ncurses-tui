@@ -16,11 +16,11 @@ type
 { TfrmMain }
   TfrmMain = class(TForm)
   private
+    procedure Paint; override;
   protected
   public
     constructor Create(AHasColor: Boolean);
 
-    procedure Paint; override;
     procedure HandleMessage(AMessage: TMessage); override;
   published
   end;
@@ -49,6 +49,7 @@ end;
 procedure TfrmMain.Paint;
 begin
   inherited Paint;
+  Application.Debug('frmMain Paint');
   WriteTextAt(2, 1, 'This is frmMain');
   MoveTo(5, 3);
   WriteText('Press any key to exit');
@@ -56,12 +57,21 @@ begin
 end;
 
 procedure TfrmMain.HandleMessage(AMessage: TMessage);
-var
-  message: TMessage;
 begin
-  if AMessage.MessageType = mtKey then
-  begin
-    Application.Terminate;
+  Application.Debug('frmMain HandleMessage');
+  inherited HandleMessage(AMessage);
+  case AMessage.MessageType of
+    mtKey:
+    begin
+      Application.Terminate;
+    end;
+    //mtRefresh:
+    //begin
+    //  { #note -ogcarreno : This needs to be handled at the Base level }
+    //  Paint;
+    //end;
+  otherwise
+    // Silence the warning
   end;
 end;
 

@@ -23,11 +23,12 @@ type
     FCaption: String;
     FHasColor: Boolean;
     FBorderStyle: TBorderStyle;
+
+    procedure Paint; override;
   public
     constructor Create(AHasColor: Boolean);
     destructor Destroy; override;
 
-    procedure Paint; override;
     procedure WriteText(const Text: String);
     procedure WriteTextAt(AX, AY: Integer; const Text: String);
     procedure MoveTo(AX, AY: Integer);
@@ -78,6 +79,7 @@ end;
 
 procedure TForm.Paint;
 begin
+  Application.Debug('TForm Paint');
   { #todo -ogcarreno : Implement form painting and maybe children
     ( Loop through Invalidate? ) }
   //if has_colors then

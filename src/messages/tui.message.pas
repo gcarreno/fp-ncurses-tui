@@ -13,13 +13,14 @@ type
 { TMessageType }
   TMessageType = (
     mtNone,
-    mtKey,    // Key pressed
-    mtMouse,  // Mouse event
-    mtResize, // Resize event
-    mtCustom, // Just in case
-    mtClick,  // Click event
-    mtFocus,  // For future form focus
-    mtBlur,   // For future form focus
+    mtKey,     // Key pressed
+    mtMouse,   // Mouse event
+    mtResize,  // Resize event
+    mtCustom,  // Just in case
+    mtRefresh, // Triggers a repaint
+    mtClick,   // Click event
+    mtFocus,   // For future form focus
+    mtBlur,    // For future form focus
     mtApplicationQuit  // Self explanatory
   );
 { TMessage }
