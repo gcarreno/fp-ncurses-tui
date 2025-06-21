@@ -11,4 +11,4 @@ This is an attempt to recreate, as much as possible, the pattern used in the `LC
 
 ## Screen Shots
 
-[!fp-ncurses-tui-example-one-form](img/fp-ncurses-tui-example-one-form.png)
+![fp-ncurses-tui-example-one-form](img/fp-ncurses-tui-example-one-form.png)
