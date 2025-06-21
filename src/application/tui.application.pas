@@ -51,6 +51,16 @@ var
 
 implementation
 
+uses
+  initc
+;
+
+const
+  LC_ALL = 6;
+
+// Needed to solve some UTF8 shenanigans
+procedure setlocale(cat : integer; p : pchar); cdecl; external clib;
+
 procedure HandleResize(sig: cint); cdecl;
 var
   NewHeight: Integer = 0;
@@ -70,6 +80,8 @@ end;
 
 constructor TApplication.Create;
 begin
+  // Because UTF8, of course
+  setlocale(LC_ALL, '');
   // Initialize ncurses
   initscr;
   FInitialized := True;
@@ -87,6 +99,7 @@ begin
   if has_colors then
   begin
     start_color;
+    use_default_colors;
     FHasColor:= True;
     { #todo -ogcarreno : Register default theme }
     //init_pair(1, COLOR_WHITE, -1);
@@ -110,7 +123,6 @@ end;
 
 procedure TApplication.Initialize;
 begin
-  { #note -ogcarreno : Unsure of what to do here }
   //erase;
   refresh;
 end;

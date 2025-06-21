@@ -8,18 +8,19 @@ uses
   {$ENDIF}
   Classes,
   TUI.Application,
-  TUI.Form
+  TUI.Form,
+  Forms.Main
   { you can add units after this };
 
 var
-  frmMain: TForm;
+  frmMain: TfrmMain;
 
 begin
   Application.Title:= 'One Form';
   Application.Initialize;
 
   { #note -ogcarreno : Temp form handling, before list of Forms implemented }
-  frmMain:= TForm.Create(1, 1, 35, 5, bsSingleLine);
+  frmMain:= TfrmMain.Create(1, 1, 35, 5, bsSingleLine);
   //frmMain:= TForm.Create(1, 1, 35, 5);
   try
     frmMain.WriteTextAt(1, 1, 'This is frmMain talking');
