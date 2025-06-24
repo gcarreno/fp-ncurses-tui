@@ -45,8 +45,6 @@ begin
 end;
 
 procedure TForm1.HandleMessage(AMessage: TMessage);
-var
-  message: TMessage;
 begin
   FParent.Debug(Format('TfrmMain.HandleMessage(%s)',
     [TMessage.MessageTypeToStr(AMessage)]));

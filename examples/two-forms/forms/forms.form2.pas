@@ -56,15 +56,16 @@ procedure TForm2.Paint;
 begin
   inherited Paint;
 
-  { #todo -ogcarreno : Remove this code, or move it }
+  {$IFDEF DEBUG}
   if FIsFocused then
     FWindow.WriteAt(FWidth - 11, FHeight-1, '[Focus: Y]')
   else
     FWindow.WriteAt(FWidth - 11, FHeight-1, '[Focus: N]');
+  {$ENDIF}
 
   FWindow.WriteCenteredAt(2, 'This is ' + FName);
-  { #note -ogcarreno : For the time being, this needs to be here.
-                       Neede a solution to put it elsewehere }
+
+  { #note -ogcarreno : If you do anything here you have to call this}
   FWindow.Refresh;
 end;
 

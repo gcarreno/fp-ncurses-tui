@@ -20,6 +20,8 @@ type
   private
     procedure SetBorderStyle(AValue: TBorderStyle);
     procedure SetCaption(AValue: String);
+
+    function ComponentAt(AX, AY: Integer): TBaseComponent;
   protected
     FX,
     FY,
@@ -78,6 +80,28 @@ begin
   Invalidate;
 end;
 
+function TForm.ComponentAt(AX, AY: Integer): TBaseComponent;
+var
+  index: Integer;
+  component: TBaseComponent;
+begin
+  //Debug(Format('TForm.ComponentAt(%d, %d)', [AX, AY]));
+  Result:= nil;
+  //Debug(Format('  FForms.Count: %d', [FForms.Count]));
+  for index:= Pred(FComponents.Count) downto 0 do
+  begin
+    //Debug(Format('  Index: %d', [index]));
+    component:= (FComponents[index] as TBaseComponent);
+    if (component.X <= AX) and ((component.X + component.Width) >= AX) and
+       (component.Y <= AY) and ((component.Y + component.Height) >= AY) then
+    begin
+      //Debug('  Got Component');
+      Result:= component;
+      break;
+    end;
+  end;
+end;
+
 procedure TForm.Border;
 begin
   case FBorderStyle of
@@ -102,6 +126,10 @@ begin
 end;
 
 procedure TForm.HandleMessage(AMessage: TMessage);
+var
+  index: Integer;
+  component: TBaseComponent;
+  mouse_x, mouse_y: Integer;
 begin
   FParent.Debug(Format('TForm.HandleMessage(%s)',
     [TMessage.MessageTypeToStr(AMessage)]));
@@ -121,6 +149,14 @@ begin
         Focus;
       end;
       { #todo -ogcarreno : Cycle through the components to determine if it's been clicked }
+      for index:= 0 to Pred(FComponents.Count) do
+      begin
+        mouse_x:= AMessage.LParam and $00FF - FWindow.X;
+        mouse_y:= AMessage.LParam shr 16 - FWindow.Y;
+        component:= ComponentAt(mouse_x, mouse_y);
+        if Assigned(component) then
+          (FComponents[index] as TBaseComponent).HandleMessage(Amessage);
+      end;
     end;
     mtRefresh: Paint;
   otherwise
@@ -156,13 +192,9 @@ begin
   for index:= 0 to Pred(FComponents.Count) do
   begin
     FParent.Debug(Format('  Component(%d): %s', [index, TBaseComponent(FComponents[index]).Name]));
-    //FWindow.WriteAt(
-    //  (FComponents[index] as TBaseComponent).X,
-    //  (FComponents[index] as TBaseComponent).Y,
-    //  (FComponents[index] as TBaseComponent).Name
-    //);
     (FComponents[index] as TBaseComponent).Paint;
   end;
+  FWindow.Refresh;
 end;
 
 procedure TForm.Focus;

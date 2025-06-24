@@ -95,9 +95,9 @@ type
     FInvalidated: Boolean;
     FIsFocused: Boolean;
     FX,
-    FY{,
+    FY,
     FWidth,
-    FHeight}: Integer;
+    FHeight: Integer;
     FName: String;
   public
     constructor Create(AOwner: TBaseForm);
@@ -117,12 +117,12 @@ type
     property Y: Integer
       read FY
       write FY;
-    //property Width: Integer
-    //  read FWidth
-    //  write FWidth;
-    //property Height: Integer
-    //  read FHeight
-    //  write FHeight;
+    property Width: Integer
+      read FWidth
+      write FWidth;
+    property Height: Integer
+      read FHeight
+      write FHeight;
     property Name: String
       read FName
       write FName;

@@ -10,7 +10,6 @@ uses
 , ncurses
 , TUI.Core.Form
 , TUI.Core.Message
-, TUI.Components.StaticText
 ;
 
 type
@@ -29,6 +28,10 @@ var
   frmMain: TfrmMain;
 
 implementation
+
+uses
+  TUI.Components.StaticText
+;
 
 { TfrmMain }
 
@@ -53,6 +56,8 @@ begin
   FLabel.Caption:= 'Label: lblHello1';
   FLabel.X:= 2;
   FLabel.Y:= 5;
+  FLabel.Width:= Length(FLabel.Caption);
+  FLabel.Height:= 1;
   AddComponent(FLabel);
   FParent.Debug('  Create 2');
   FLabel:= TStaticText.Create(Self);
@@ -61,6 +66,8 @@ begin
   FLabel.Caption:= 'Label: lblHello2';
   FLabel.X:= 2;
   FLabel.Y:= 6;
+  FLabel.Width:= Length(FLabel.Caption);
+  FLabel.Height:= 1;
   AddComponent(FLabel);
 end;
 
@@ -85,15 +92,16 @@ procedure TfrmMain.Paint;
 begin
   inherited Paint;
   FParent.Debug('TfrmMain.Paint');
-  { #todo -ogcarreno : Remove this code, or move it }
+  {$IFDEF DEBUG}
   if FIsFocused then
     FWindow.WriteAt(FWidth - 11, FHeight-1, '[Focus: Y]')
   else
     FWindow.WriteAt(FWidth - 11, FHeight-1, '[Focus: N]');
+  {$ENDIF}
 
   FWindow.WriteCenteredAt(FHeight-2, 'Focus me and press [Q] to exit');
-  { #note -ogcarreno : For the time being, this needs to be here.
-                       Neede a solution to put it elsewehere }
+
+  { #note -ogcarreno : If you do anything here you have to call this}
   FWindow.Refresh;
 end;
 

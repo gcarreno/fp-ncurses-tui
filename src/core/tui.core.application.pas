@@ -103,7 +103,7 @@ var
   index: Integer;
   form: TForm;
 begin
-  //Debug(Format('WindowAt(%d, %d)', [AX, AY]));
+  //Debug(Format('TApplication.WindowAt(%d, %d)', [AX, AY]));
   Result:= nil;
   //Debug(Format('  FForms.Count: %d', [FForms.Count]));
   for index:= Pred(FForms.Count) downto 0 do
