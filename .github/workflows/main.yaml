@@ -64,7 +64,7 @@ jobs:
       run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
 
     - name: Download the Release binary
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
 
     - name: List files
       run: ls -alF examples
@@ -77,7 +77,7 @@ jobs:
         tar -zcvf oneform-${{ steps.vars.outputs.tag }}-x86_64-linux.tar.gz oneform
         tar -zcvf twoforms-${{ steps.vars.outputs.tag }}-x86_64-linux.tar.gz twoforms
     - name: Create GitHub release
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       with:
         name: One Form ${{ steps.vars.outputs.tag }}
         body_path: release-notes.md
