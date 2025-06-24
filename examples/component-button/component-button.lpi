@@ -9,7 +9,7 @@
         <MainUnitHasScaledStatement Value="False"/>
       </Flags>
       <SessionStorage Value="InProjectDir"/>
-      <Title Value="componentbutton"/>
+      <Title Value="component-button"/>
       <UseAppBundle Value="False"/>
       <ResourceType Value="res"/>
     </General>
@@ -19,7 +19,7 @@
         <CompilerOptions>
           <Version Value="11"/>
           <Target>
-            <Filename Value="../../bin/componentbutton"/>
+            <Filename Value="../../bin/component-button"/>
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
@@ -61,7 +61,7 @@
         <CompilerOptions>
           <Version Value="11"/>
           <Target>
-            <Filename Value="../../bin/componentbutton"/>
+            <Filename Value="../../bin/component-button"/>
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
@@ -98,9 +98,8 @@
     </RunParams>
     <Units>
       <Unit>
-        <Filename Value="componentbutton.lpr"/>
+        <Filename Value="component-button.lpr"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="ComponentButton"/>
       </Unit>
       <Unit>
         <Filename Value="forms/forms.main.pas"/>
@@ -112,7 +111,7 @@
   <CompilerOptions>
     <Version Value="11"/>
     <Target>
-      <Filename Value="../../bin/componentbutton"/>
+      <Filename Value="../../bin/component-button"/>
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>

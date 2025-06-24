@@ -1,4 +1,4 @@
-program componentlabel;
+program ComponentLabel;
 
 {$mode objfpc}{$H+}
 

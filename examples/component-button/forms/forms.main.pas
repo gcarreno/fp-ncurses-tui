@@ -45,10 +45,10 @@ procedure TfrmMain.Initialize;
 var
   button: TButton;
 begin
-  FX:= 2;
-  FY:= 2;
-  FWidth:= 45;
-  FHeight:= 15;
+  FX:= 0;
+  FY:= 0;
+  FWidth:= COLS - 1;
+  FHeight:= LINES - 3;
   FBorderStyle:= bsSingleLine;
   FName:= 'frmMain';
   FCaption:= 'Main Form';
@@ -57,8 +57,8 @@ begin
   button:= TButton.Create(Self);
   button.Name:= 'Button1';
   button.Caption:='Quit';
-  button.X:= 3;
-  button.Y:= 13;
+  button.X:= FWidth - Length(Format('[ %s ]', [button.Caption])) - 3;
+  button.Y:= FHeight - 3;
   button.Width:= Length(Format('[ %s ]', [button.Caption]));
   button.Height:= 1;
   button.OnCLick:= @OnClick;

@@ -207,7 +207,7 @@ begin
   ProcessMessages;
   {$IFDEF DEBUG}
   version:= curses_version;
-  mvwaddstr(stdscr, LINES-1, COLS-Length(version), PAnsiChar(version));
+  mvwaddstr(stdscr, LINES-1, COLS-Length(version)-2, PAnsiChar(version));
   if Assigned(FFocusedForm) then
     mvwaddstr(stdscr, LINES-1, 0, PAnsiChar(
       Format('Focus: %s          ', [FFocusedForm.Name])
