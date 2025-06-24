@@ -1,0 +1,87 @@
+name: fp-ncurses-tui
+
+permissions:
+  contents: write
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ "*" ]
+    paths-ignore: [ "README.md", "history.md", "release-notes.md" ]
+
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    name: Build and/or Test
+    runs-on: ${{ matrix.operating-system }}
+
+    strategy:
+      matrix:
+        operating-system: [ ubuntu-latest ]
+        lazarus-versions: [ stable, 3.6 ]
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+      with:
+        submodules: true
+
+    - name: Install Lazarus
+      uses: gcarreno/setup-lazarus@v3
+      with:
+        lazarus-version: ${{ matrix.lazarus-versions }}
+
+    - name: Build the Examples
+      if: ${{ matrix.operating-system == 'ubuntu' }}
+      run: |
+        lazbuild -B --bm=Release "examples/one-form/oneform.lpi"
+        lazbuild -B --bm=Release "examples/two-forms/twoforms.lpi"
+
+    - name: Upload binary (Ubuntu)
+      if: ${{ (matrix.operating-system == 'ubuntu-latest')  &&  (matrix.lazarus-versions == 'stable') }}
+      uses: actions/upload-artifact@v3
+      with:
+        name: examples
+        path: |
+          bin/oneform
+          bin/twoforms
+
+  package-release:
+    if: contains(github.ref, '/tags/')
+
+    name: Package and create GitHub Release
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Set output
+      id: vars
+      run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
+
+    - name: Download the Release binary
+      uses: actions/download-artifact@v3
+
+    - name: List files
+      run: ls -alF examples
+
+    - name: Create release files
+      run: |
+        cd examples
+        chmod +x oneform
+        chmod +x twoforms
+        tar -zcvf oneform-${{ steps.vars.outputs.tag }}-x86_64-linux.tar.gz oneform
+        tar -zcvf twoforms-${{ steps.vars.outputs.tag }}-x86_64-linux.tar.gz twoforms
+    - name: Create GitHub release
+      uses: softprops/action-gh-release@v1
+      with:
+        name: One Form ${{ steps.vars.outputs.tag }}
+        body_path: release-notes.md
+        files: |
+          examples/*.tar.gz
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
