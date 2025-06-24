@@ -20,7 +20,7 @@ jobs:
     strategy:
       matrix:
         operating-system: [ ubuntu-latest ]
-        lazarus-versions: [ stable, 3.6 ]
+        lazarus-versions: [ stable ]
 
     steps:
     - name: Checkout Repository
@@ -32,9 +32,10 @@ jobs:
       uses: gcarreno/setup-lazarus@v3
       with:
         lazarus-version: ${{ matrix.lazarus-versions }}
+        with-cache: false
 
     - name: Build the Examples
-      if: ${{ matrix.operating-system == 'ubuntu' }}
+      if: ${{ matrix.operating-system == 'ubuntu-latest' }}
       run: |
         lazbuild -B --bm=Release "examples/one-form/oneform.lpi"
         lazbuild -B --bm=Release "examples/two-forms/twoforms.lpi"
