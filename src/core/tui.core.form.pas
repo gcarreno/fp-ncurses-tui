@@ -20,15 +20,12 @@ type
   private
     procedure SetBorderStyle(AValue: TBorderStyle);
     procedure SetCaption(AValue: String);
-    procedure SetName(AValue: String);
   protected
     FX,
     FY,
     FWidth,
     FHeight: Integer;
     FBorderStyle: TBorderStyle;
-    FName: String;
-    FCaption: String;
 
     procedure Border;
   public
@@ -36,9 +33,10 @@ type
 
     procedure Paint; virtual;
 
-    procedure Focus; virtual;
-    procedure Blur; virtual;
+    procedure Focus; override;
+    procedure Blur; override;
 
+  published
     property X: Integer
       read FX;
     property Y: Integer
@@ -50,13 +48,9 @@ type
     property BorderStyle: TBorderStyle
       read FBorderStyle
       write SetBorderStyle;
-    property Name: String
-      read FName
-      write SetName;
     property Caption: String
       read FCaption
       write SetCaption;
-  published
   end;
 
 implementation
@@ -81,13 +75,6 @@ procedure TForm.SetCaption(AValue: String);
 begin
   if FCaption=AValue then Exit;
   FCaption:=AValue;
-  Invalidate;
-end;
-
-procedure TForm.SetName(AValue: String);
-begin
-  if FName=AValue then Exit;
-  FName:=AValue;
   Invalidate;
 end;
 
@@ -146,16 +133,16 @@ var
   index: Integer;
   refresh: TMessage;
 begin
-  //FParent.Debug('TForm.Paint');
+  FParent.Debug('TForm.Paint');
   if not FInvalidated then
     exit;
 
-  //FParent.Debug('  Erasing');
+  FParent.Debug('  Erasing');
   FWindow.Erase;
-  //FParent.Debug('  Border');
+  FParent.Debug('  Border');
   Border;
 
-  //FParent.Debug('  Caption');
+  FParent.Debug('  Caption');
   // Caption
   if FBorderStyle <> bsNone then
   begin
@@ -164,13 +151,17 @@ begin
     if  (Length(FCaption) > 0) then
       FWindow.WriteCenteredAt(0, Format(cCaptionFormat, [FCaption]));
   end;
-  FWindow.Refresh;
 
-  //FParent.Debug('  Components');
+  FParent.Debug('  Components');
   for index:= 0 to Pred(FComponents.Count) do
   begin
-    refresh:= TMessage.CreateRefresh(Self, FComponents[index]);
-    FParent.PostMessage(refresh);
+    FParent.Debug(Format('  Component(%d): %s', [index, TBaseComponent(FComponents[index]).Name]));
+    //FWindow.WriteAt(
+    //  (FComponents[index] as TBaseComponent).X,
+    //  (FComponents[index] as TBaseComponent).Y,
+    //  (FComponents[index] as TBaseComponent).Name
+    //);
+    (FComponents[index] as TBaseComponent).Paint;
   end;
 end;
 

@@ -54,14 +54,16 @@ type
 { TBaseForm }
   TBaseForm = class(TObject)
   private
+    procedure SetName(AValue: String);
   protected
     FParent: TBaseApplication;
     FWindow: TNCWindow;
     FComponents: TFPObjectList;
     FInvalidated: Boolean;
     FIsFocused: Boolean;
+    FName: String;
+    FCaption: String;
     procedure CreateWindow(AX, AY, AWidth, AHeight: Integer);
-
   public
     constructor Create(AOwner: TBaseApplication);
     destructor Destroy; override;
@@ -73,7 +75,15 @@ type
 
     function AddComponent(AComponent: TBaseComponent): Integer;
     procedure Invalidate;
+
+    procedure Debug(const AMessage: String);
+
+    property Window: TNCWindow
+      read FWindow;
   published
+    property Name: String
+      read FName
+      write SetName;
   end;
 
 { TBaseComponent }
@@ -81,13 +91,41 @@ type
   private
   protected
     FParent: TBaseForm;
-    FWindow: TNCWindow;
+    //FWindow: TNCWindow;
+    FInvalidated: Boolean;
+    FIsFocused: Boolean;
+    FX,
+    FY{,
+    FWidth,
+    FHeight}: Integer;
+    FName: String;
   public
     constructor Create(AOwner: TBaseForm);
     destructor Destroy; override;
 
     procedure Initialize; virtual; abstract;
+    procedure Paint; virtual; abstract;
+    procedure HandleMessage(AMessage: TMessage); virtual; abstract;
+
+    procedure Focus; virtual; abstract;
+    procedure Blur; virtual; abstract;
+    procedure Invalidate;
   published
+    property X: Integer
+      read FX
+      write FX;
+    property Y: Integer
+      read FY
+      write FY;
+    //property Width: Integer
+    //  read FWidth
+    //  write FWidth;
+    //property Height: Integer
+    //  read FHeight
+    //  write FHeight;
+    property Name: String
+      read FName
+      write FName;
   end;
 
 implementation
@@ -128,6 +166,14 @@ end;
 
 { TBaseForm }
 
+procedure TBaseForm.SetName(AValue: String);
+begin
+  if FName=AValue then Exit;
+  FName:=AValue;
+  Invalidate;
+end;
+
+
 procedure TBaseForm.CreateWindow(AX, AY, AWidth, AHeight: Integer);
 begin
   FWindow:= TNCWindow.Create(AX, AY, AWidth, AHeight);
@@ -154,6 +200,8 @@ end;
 function TBaseForm.AddComponent(AComponent: TBaseComponent): Integer;
 begin
   Result:= FComponents.Add(AComponent);
+  AComponent.Invalidate;
+  AComponent.Initialize;
 end;
 
 procedure TBaseForm.Invalidate;
@@ -161,19 +209,31 @@ begin
   FInvalidated:= True;
 end;
 
+procedure TBaseForm.Debug(const AMessage: String);
+begin
+  FParent.Debug(AMessage);
+end;
+
 { TBaseComponent }
 
 constructor TBaseComponent.Create(AOwner: TBaseForm);
 begin
   FParent:= AOwner;
-  FWindow:= nil;
+  //FWindow:= nil;
+  FInvalidated:= False;
+  FIsFocused:= False;
 end;
 
 destructor TBaseComponent.Destroy;
 begin
-  if Assigned(FWindow) then
-    FWindow.Free;
+  //if Assigned(FWindow) then
+  //  FWindow.Free;
   inherited Destroy;
+end;
+
+procedure TBaseComponent.Invalidate;
+begin
+  FInvalidated:= True;
 end;
 
 end.

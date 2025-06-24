@@ -122,7 +122,7 @@ end;
 
 procedure TApplication.Initialize;
 begin
-  //Debug('TApplication.Initialize');
+  Debug('TApplication.Initialize');
   // Initialize ncurses
   initscr;
   FInitialized := True;
@@ -162,7 +162,7 @@ procedure TApplication.Run;
 var
   message: TMessage;
 begin
-  //Debug('TApplication.Run');
+  Debug('TApplication.Run');
   while not FQuit do
   begin
     // Redraw everything
@@ -183,8 +183,8 @@ begin
   Result:= FForms.Add(AForm);
   AForm.Initialize;
   if Assigned(FFocusedForm) then
-    PostMessage(TMessage.CreateBlur(nil, FFocusedForm));
-  PostMessage(TMessage.CreateFocus(nil, AForm));
+    PostMessage(TMessage.CreateBlur(FFocusedForm));
+  PostMessage(TMessage.CreateFocus(AForm));
   FFocusedForm:= TForm(AForm);
   ProcessMessages;
 end;
@@ -194,21 +194,34 @@ procedure TApplication.RedrawAllForms;
 var
   index: Integer;
   message: TMessage;
+  {$IFDEF DEBUG}
+  version: String;
+  {$ENDIF}
 begin
-  //Debug('TApplication.RedrawAllForms');
+  Debug('TApplication.RedrawAllForms');
   for index:= 0 to Pred(FForms.Count) do
   begin
     message:= TMessage.CreateRefresh(nil, FForms[index] as TForm);
     PostMessage(message);
   end;
   ProcessMessages;
+  {$IFDEF DEBUG}
+  version:= curses_version;
+  mvwaddstr(stdscr, LINES-1, COLS-Length(version), PAnsiChar(version));
+  if Assigned(FFocusedForm) then
+    mvwaddstr(stdscr, LINES-1, 0, PAnsiChar(
+      Format('Focus: %s          ', [FFocusedForm.Name])
+    ))
+  else
+    mvwaddstr(stdscr, LINES-1, 0, PAnsiChar('Focus: None          '));
+  {$ENDIF}
 end;
 
 procedure TApplication.ProcessMessages;
 var
   message: TMessage;
 begin
-  //Debug('TApplication.ProcessMessages');
+  Debug('TApplication.ProcessMessages');
   // Dispatch all queued messages
   while GetMessage(message) do
   begin
@@ -224,7 +237,7 @@ var
   return: Integer;
   form: TForm;
 begin
-  //Debug('TApplication.PollInput');
+  Debug('TApplication.PollInput');
   key := getch;
 
   case key of
@@ -236,14 +249,14 @@ begin
       if return = OK then
       begin
         form:= WindowAt(event.x, event.y);
+        PostMessage(TMessage.CreateBlur(FFocusedForm));
         if Assigned(form) and (FFocusedForm <> form) then
         begin
-          PostMessage(TMessage.CreateBlur(nil, FFocusedForm));
-          ProcessMessages;
           FFocusedForm:= form;
         end
         else
           FFocusedForm:= nil;
+
         AMessage:= TMessage.CreateMouse(
           nil,
           form,
@@ -275,58 +288,68 @@ end;
 
 procedure TApplication.PostMessage(const AMessage: TMessage);
 begin
-  //Debug(Format('TApplication.PostMessage(%s)',
-  //  [TMessage.MessageTypeToStr(AMessage)]));
+  Debug(Format('TApplication.PostMessage(%s)',
+    [TMessage.MessageTypeToStr(AMessage)]));
   FMessages.Add(AMessage);
 end;
 
 function TApplication.GetMessage(out AMessage: TMessage): Boolean;
 begin
-  //Debug('TApplication.GetMessage');
-  Result:= FMessages.Count > 0;
-  if Result then
-  begin
-    //Debug(Format('FMessages.Count: %d', [FMessages.Count]));
-    AMessage:= (FMessages[0] as TMessage).Copy;
-    //Debug(Format('AMessaget: %s',
-    //  [TMessage.MessageTypeToStr(Amessage)]));
-    FMessages.Delete(0);
-    //Debug(Format('FMessages.Count: %d', [FMessages.Count]));
+  Debug('TApplication.GetMessage');
+  try
+    //Debug('  Testing count > 0');
+    Result:= FMessages.Count > 0;
+    //Debug(Format('  Result: %b', [Result]));
+    if Result then
+    begin
+      //Debug(Format('  FMessages.Count: %d', [FMessages.Count]));
+      AMessage:= (FMessages[0] as TMessage).Copy;
+      Debug(Format('  AMessage: %s',
+        [TMessage.MessageTypeToStr(Amessage)]));
+      FMessages.Delete(0);
+      //Debug(Format('  FMessages.Count: %d', [FMessages.Count]));
+    end;
+  except
+    on E:Exception do
+      Debug('  ERROR: ' + E.Message);
   end;
 end;
 
 procedure TApplication.DispatchMessage(const AMessage: TMessage);
-var
-  message: TMessage;
+//var
+//  message: TMessage;
 begin
-  //Debug(Format('TApplication.DispatchMessage(%s)',
-  //  [TMessage.MessageTypeToStr(AMessage)]));
-  if Assigned(AMessage.Target) {and (AMessage.Target is TForm)} then
-  begin
-    TForm(AMessage.Target).HandleMessage(AMessage);
-    case AMessage.MessageType of
-      mtMouse:
+  Debug(Format('TApplication.DispatchMessage(%s)',
+    [TMessage.MessageTypeToStr(AMessage)]));
+  try
+    if Assigned(AMessage.Target) {and (AMessage.Target is TForm)} then
+    begin
+      if AMessage.Target is TForm then
       begin
-        if AMessage.Target is TForm then
+        Debug('  Target is TForm');
+        TForm(AMessage.Target).HandleMessage(AMessage);
+      end;
+      if AMessage.Target is TBaseComponent then
+      begin
+        Debug('  Target is TBaseComponent');
+        TBaseComponent(AMessage.Target).HandleMessage(AMessage);
+      end;
+      case AMessage.MessageType of
+        mtMouse:
+        begin
           FFocusedForm:= TForm(AMessage.Target);
+        end;
+        otherwise
+          // Silence the warning
       end;
-      otherwise
+    end
+    else
+    begin
+      Debug('  Target is NULL');
     end;
-  end
-  else
-  begin
-    case AMessage.MessageType of
-      mtMouse:
-      begin
-        message:= TMessage.CreateBlur(
-          nil,
-          FFocusedForm
-        );
-        PostMessage(message);
-        FFocusedForm:= nil;
-      end;
-      otherwise
-    end;
+  except
+    on E:Exception do
+      Debug('  ERROR: ' + E.Message);
   end;
 end;
 

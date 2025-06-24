@@ -8,24 +8,24 @@ uses
   Classes
 , SysUtils
 , ncurses
-, TUI.Message
-, TUI.BaseComponent
+, TUI.BaseTypes
+, TUI.Core.Message
 ;
 
 type
 { TStaticText }
   TStaticText = class(TBaseComponent)
   private
-    FParent: TObject;
     FCaption: String;
   protected
-    procedure Paint; override;
   public
-    constructor Create(const AName, ACaption: String;AX, AY: LongInt;
-      AParent: TObject; AHasColor: Boolean);
-    destructor Destroy; override;
+    procedure Initialize; override;
 
     procedure HandleMessage(AMessage: TMessage); override;
+    procedure Paint; override;
+
+    procedure Focus; override;
+    procedure Blur; override;
   published
     property Caption: String
       read FCaption
@@ -34,56 +34,67 @@ type
 
 implementation
 
-uses
-  TUI.Application
-, TUI.Form
-;
-
 { TStaticText }
 
-constructor TStaticText.Create(const AName, ACaption: String; AX, AY: LongInt;
-  AParent: TObject; AHasColor: Boolean);
+procedure TStaticText.Initialize;
 begin
-  FParent:= AParent;
-  FX:= (FParent as TForm).x + AX;
-  FY:= (FParent as TForm).x + AY;
-  FWidth:= Length(ACaption);
-  FHeight:= 1;
-  FName:= AName;
-  FCaption:= ACaption;
-  FHasColor:= AHasColor;
-  FCanFocus:= False;
-  FIsFocused:= False;
-  FInvalidated:= True;
-  inherited Create(AName, FX, FY, FWidth, 1);
-end;
-
-destructor TStaticText.Destroy;
-begin
-  inherited Destroy;
+  { #note -ogcarreno : This will contain ncurses window setup if I ever
+                       decide to make components in a window }
 end;
 
 procedure TStaticText.HandleMessage(AMessage: TMessage);
 begin
-  Application.Debug(Format('Label HandleMessage: %s -------------------', [
-    TMessage.MessageTypeToStr(AMessage.MessageType)
+  FParent.Debug(Format('TStaticText.HandleMessage(%s)',[
+    TMessage.MessageTypeToStr(AMessage)
   ]));
   case AMessage.MessageType of
-    mtRefresh: Invalidate;
+    mtFocus:
+    begin
+      Focus;
+    end;
+    mtBlur:
+    begin
+      Blur;
+    end;
+    mtMouse:
+    begin
+      if not FIsFocused then
+      begin
+        Focus;
+      end;
+      { #todo -ogcarreno : Cycle through the components to determine if it's
+                           been clicked }
+    end;
+    mtRefresh: Paint;
   otherwise
+    // Silence the warning
   end;
-  inherited HandleMessage(AMessage);
 end;
 
 procedure TStaticText.Paint;
 begin
+  FParent.Debug('TStaticText.Paint');
   if not FInvalidated then
     exit;
-  Application.Debug('---- Label Paint');
-  werase(FWindow);
-  WriteTextAt(0, 0, FCaption);
-  wrefresh(FWindow);
-  inherited Paint;
+  FParent.Window.WriteAt(FX, FY, FCaption);
+end;
+
+procedure TStaticText.Focus;
+begin
+  if not FIsFocused then
+  begin
+    FIsFocused:= True;
+    Invalidate;
+  end;
+end;
+
+procedure TStaticText.Blur;
+begin
+  if FIsFocused then
+  begin
+    FIsFocused:= False;
+    Invalidate;
+  end;
 end;
 
 end.

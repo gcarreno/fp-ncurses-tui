@@ -104,31 +104,6 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="Forms.Main"/>
       </Unit>
-      <Unit>
-        <Filename Value="../../src/base/tui.basetypes.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="TUI.BaseTypes"/>
-      </Unit>
-      <Unit>
-        <Filename Value="../../src/ncurses/tui.ncurses.window.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="TUI.Ncurses.Window"/>
-      </Unit>
-      <Unit>
-        <Filename Value="../../src/core/tui.core.application.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="TUI.Core.Application"/>
-      </Unit>
-      <Unit>
-        <Filename Value="../../src/core/tui.core.message.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="TUI.Core.Message"/>
-      </Unit>
-      <Unit>
-        <Filename Value="../../src/core/tui.core.form.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="TUI.Core.Form"/>
-      </Unit>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

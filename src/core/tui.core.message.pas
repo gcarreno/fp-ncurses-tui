@@ -49,8 +49,8 @@ type
     class function CreateKey(ASender, ATarget: TObject; AKey: Integer): TMessage;
     class function CreateMouse(ASender, ATarget: TObject; AWParam, ALParam: Int64): TMessage;
     class function CreateRefresh(ASender, ATarget: TObject): TMessage;
-    class function CreateFocus(ASender, ATarget: TObject): TMessage;
-    class function CreateBlur(ASender, ATarget: TObject): TMessage;
+    class function CreateFocus(ATarget: TObject): TMessage;
+    class function CreateBlur(ATarget: TObject): TMessage;
 
     function Copy: TMessage;
 
@@ -148,11 +148,11 @@ begin
   );
 end;
 
-class function TMessage.CreateFocus(ASender, ATarget: TObject): TMessage;
+class function TMessage.CreateFocus(ATarget: TObject): TMessage;
 begin
   Result:= TMessage.Create(
     mtFocus,
-    ASender,
+    nil,
     ATarget,
     0,
     0,
@@ -160,11 +160,11 @@ begin
   );
 end;
 
-class function TMessage.CreateBlur(ASender, ATarget: TObject): TMessage;
+class function TMessage.CreateBlur(ATarget: TObject): TMessage;
 begin
   Result:= TMessage.Create(
     mtBlur,
-    ASender,
+    nil,
     ATarget,
     0,
     0,

@@ -9,7 +9,7 @@
         <MainUnitHasScaledStatement Value="False"/>
       </Flags>
       <SessionStorage Value="InProjectDir"/>
-      <Title Value="twoforms"/>
+      <Title Value="component-label"/>
       <UseAppBundle Value="False"/>
       <ResourceType Value="res"/>
     </General>
@@ -19,11 +19,11 @@
         <CompilerOptions>
           <Version Value="11"/>
           <Target>
-            <Filename Value="../../bin/twoforms"/>
+            <Filename Value="../../bin/component-label"/>
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
-            <OtherUnitFiles Value="../../src/base;../../src/core;../../src/ncurses;forms"/>
+            <OtherUnitFiles Value="../../src/base;../../src/core;../../src/ncurses;../../src/components;forms"/>
             <UnitOutputDirectory Value="../../bin/lib/$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <Parsing>
@@ -61,11 +61,11 @@
         <CompilerOptions>
           <Version Value="11"/>
           <Target>
-            <Filename Value="../../bin/twoforms"/>
+            <Filename Value="../../bin/component-label"/>
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
-            <OtherUnitFiles Value="../../src/base;../../src/core;../../src/ncurses;forms"/>
+            <OtherUnitFiles Value="../../src/base;../../src/core;../../src/ncurses;../../src/components;forms"/>
             <UnitOutputDirectory Value="../../bin/lib/$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <CodeGeneration>
@@ -98,30 +98,24 @@
     </RunParams>
     <Units>
       <Unit>
-        <Filename Value="twoforms.lpr"/>
+        <Filename Value="component-label.lpr"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="TwoForms"/>
       </Unit>
       <Unit>
-        <Filename Value="forms/forms.form1.pas"/>
+        <Filename Value="forms/forms.main.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="Forms.Form1"/>
-      </Unit>
-      <Unit>
-        <Filename Value="forms/forms.form2.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="Forms.Form2"/>
+        <UnitName Value="Forms.Main"/>
       </Unit>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
     <Version Value="11"/>
     <Target>
-      <Filename Value="../../bin/twoforms"/>
+      <Filename Value="../../bin/component-label"/>
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="../../src/base;../../src/core;../../src/ncurses;forms"/>
+      <OtherUnitFiles Value="../../src/base;../../src/core;../../src/ncurses;../../src/components;forms"/>
       <UnitOutputDirectory Value="../../bin/lib/$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Other>

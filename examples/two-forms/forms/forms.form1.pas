@@ -42,22 +42,6 @@ begin
   FName:= 'Form1';
   FCaption:= 'Form One';
   CreateWindow(FX, FY, FWidth, FHeight);
-  //FLabel:= TStaticText.Create(
-  //  'lblHello1',
-  //  'Label: lblHello1',
-  //  2,
-  //  4,
-  //  Self,
-  //  Application.HasColor);
-  //FComponents.Add(FLabel);
-  //FLabel:= TStaticText.Create(
-  //  'lblHello2',
-  //  'Label: lblHello2',
-  //  2,
-  //  5,
-  //  Self,
-  //  Application.HasColor);
-  //FComponents.Add(FLabel);
 end;
 
 procedure TForm1.HandleMessage(AMessage: TMessage);

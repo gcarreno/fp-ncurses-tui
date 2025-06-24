@@ -10,13 +10,13 @@ uses
 , ncurses
 , TUI.Core.Form
 , TUI.Core.Message
+, TUI.Components.StaticText
 ;
 
 type
 { TfrmMain }
   TfrmMain = class(TForm)
   private
-    //FLabel: TStaticText;
   protected
   public
     procedure Initialize; override;
@@ -33,7 +33,10 @@ implementation
 { TfrmMain }
 
 procedure TfrmMain.Initialize;
+var
+  FLabel: TStaticText;
 begin
+  FParent.Debug('TfrmMain.Initialize');
   FX:= 2;
   FY:= 2;
   FWidth:= 45;
@@ -42,15 +45,31 @@ begin
   FName:= 'frmMain';
   FCaption:= 'Main Form';
   CreateWindow(FX, FY, FWidth, FHeight);
+
+  FParent.Debug('  Create 1');
+  FLabel:= TStaticText.Create(Self);
+  FLabel.Initialize;
+  FLabel.Name:= 'lblHello1';
+  FLabel.Caption:= 'Label: lblHello1';
+  FLabel.X:= 2;
+  FLabel.Y:= 5;
+  AddComponent(FLabel);
+  FParent.Debug('  Create 2');
+  FLabel:= TStaticText.Create(Self);
+  FLabel.Initialize;
+  FLabel.Name:= 'lblHello2';
+  FLabel.Caption:= 'Label: lblHello2';
+  FLabel.X:= 2;
+  FLabel.Y:= 6;
+  AddComponent(FLabel);
 end;
 
 procedure TfrmMain.HandleMessage(AMessage: TMessage);
-var
-  message: TMessage;
 begin
+  inherited HandleMessage(AMessage);
+
   FParent.Debug(Format('TfrmMain.HandleMessage(%s)',
     [TMessage.MessageTypeToStr(AMessage)]));
-  inherited HandleMessage(AMessage);
   case AMessage.MessageType of
     mtKey:
     begin
@@ -65,14 +84,13 @@ end;
 procedure TfrmMain.Paint;
 begin
   inherited Paint;
-
+  FParent.Debug('TfrmMain.Paint');
   { #todo -ogcarreno : Remove this code, or move it }
   if FIsFocused then
     FWindow.WriteAt(FWidth - 11, FHeight-1, '[Focus: Y]')
   else
     FWindow.WriteAt(FWidth - 11, FHeight-1, '[Focus: N]');
 
-  FWindow.WriteCenteredAt(2, 'This is ' + FName);
   FWindow.WriteCenteredAt(FHeight-2, 'Focus me and press [Q] to exit');
   { #note -ogcarreno : For the time being, this needs to be here.
                        Neede a solution to put it elsewehere }
