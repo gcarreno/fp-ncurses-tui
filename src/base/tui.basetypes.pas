@@ -9,6 +9,8 @@ uses
 , SysUtils
 , Contnrs
 , ncurses
+, TUI.Ncurses.Window
+, TUI.Core.Message
 ;
 
 type
@@ -21,16 +23,33 @@ type
   TBaseApplication = class(TObject)
   private
   protected
+    FTitle: String;
+    FCursorVisible: Boolean;
+    FMessages: TFPObjectList;
     FForms: TFPObjectList;
-  public
-    constructor Create;
-    destructor Destroy; Override;
+    { #todo -ogcarreno : This needs to go away, eventually }
+    {$IFDEF DEBUG}
+    FDebug: TStringList;
+    {$ENDIF}
 
-    function AddForm(AForm: TBaseForm): Integer;
+  public
+    constructor Create; virtual;
+    destructor Destroy; override;
 
     procedure Initialize; virtual; abstract;
     procedure Run; virtual; abstract;
+
+    //function PollInput(out AMessage: TMessage): Boolean; virtual; abstract;
+    procedure PostMessage(const AMessage: TMessage); virtual; abstract;
+    //function GetMessage(out AMessage: TMessage): Boolean; virtual; abstract;
+    //procedure DispatchMessage(const AMessage: TMessage); virtual; abstract;
+    procedure Terminate; virtual; abstract;
+
+    procedure Debug(const AMessage: String);
   published
+    property Title: String
+      read FTitle
+      write FTitle;
   end;
 
 
@@ -39,15 +58,19 @@ type
   private
   protected
     FParent: TBaseApplication;
-    FWindow: PWINDOW;
+    FWindow: TNCWindow;
     FComponents: TFPObjectList;
+    FInvalidated: Boolean;
+    FIsFocused: Boolean;
+    procedure CreateWindow(AX, AY, AWidth, AHeight: Integer);
   public
     constructor Create(AOwner: TBaseApplication);
     destructor Destroy; override;
 
-    function AddComponent(AComponent: TBaseComponent): Integer;
-
     procedure Initialize; virtual; abstract;
+
+    function AddComponent(AComponent: TBaseComponent): Integer;
+    procedure Invalidate;
   published
   end;
 
@@ -56,7 +79,7 @@ type
   private
   protected
     FParent: TBaseForm;
-    FWindow: PWINDOW;
+    FWindow: TNCWindow;
   public
     constructor Create(AOwner: TBaseForm);
     destructor Destroy; override;
@@ -71,30 +94,57 @@ implementation
 
 constructor TBaseApplication.Create;
 begin
+  FMessages:= TFPObjectList.Create(True);
   FForms:= TFPObjectList.Create(True);
+  FCursorVisible:= False;
+{$IFDEF DEBUG}
+  FDebug:= TStringList.CReate;
+{$ENDIF}
 end;
 
 destructor TBaseApplication.Destroy;
 begin
+
+{$IFDEF DEBUG}
+  WriteLn('---- Debug -----');
+  WriteLn(FDebug.Text);
+  FDebug.Free;
+{$ENDIF}
+
+  FMessages.Free;
   FForms.Free;
   inherited Destroy;
 end;
 
-function TBaseApplication.AddForm(AForm: TBaseForm): Integer;
+procedure TBaseApplication.Debug(const AMessage: String);
 begin
-  Result:= FForms.Add(AForm);
+{$IFDEF DEBUG}
+  FDebug.Append(AMessage);
+//  waddstr(stdscr, PChar(AMessage + LineEnding));
+{$ENDIF}
 end;
 
 { TBaseForm }
 
+procedure TBaseForm.CreateWindow(AX, AY, AWidth, AHeight: Integer);
+begin
+  FWindow:= TNCWindow.Create(AX, AY, AWidth, AHeight);
+end;
+
+
 constructor TBaseForm.Create(AOwner: TBaseApplication);
 begin
   FParent:= AOwner;
+  FWindow:= nil;
   FComponents:= TFPObjectList.Create(True);
+  FInvalidated:= False;
+  FIsFocused:= False;
 end;
 
 destructor TBaseForm.Destroy;
 begin
+  if Assigned(FWindow) then
+    FWindow.Free;
   FComponents.Free;
   inherited Destroy;
 end;
@@ -104,15 +154,23 @@ begin
   Result:= FComponents.Add(AComponent);
 end;
 
+procedure TBaseForm.Invalidate;
+begin
+  FInvalidated:= True;
+end;
+
 { TBaseComponent }
 
 constructor TBaseComponent.Create(AOwner: TBaseForm);
 begin
   FParent:= AOwner;
+  FWindow:= nil;
 end;
 
 destructor TBaseComponent.Destroy;
 begin
+  if Assigned(FWindow) then
+    FWindow.Free;
   inherited Destroy;
 end;
 

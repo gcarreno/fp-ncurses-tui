@@ -7,18 +7,14 @@ uses
   cthreads,
   {$ENDIF}
   Classes,
-  TUI.BaseTypes,
-  TUI.Application,
-  TUI.Form,
-  Forms.Main
-  { you can add units after this };
+  TUI.Core.Application,
+  Forms.Main;
 
 begin
   Application.Title:= 'One Form';
   Application.Initialize;
-  frmMain:= TfrmMain.Create(Application.HasColor);
+  frmMain:= TfrmMain.Create(Application);
   Application.AddForm(frmMain);
   Application.Run;
-
 end.
 

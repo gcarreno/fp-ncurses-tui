@@ -1,4 +1,4 @@
-unit TUI.Message;
+unit TUI.Core.Message;
 
 {$mode ObjFPC}{$H+}
 
@@ -24,6 +24,7 @@ type
     mtCustom,  // Just in case
     mtApplicationQuit  // Self explanatory
   );
+
 { TMessage }
   TMessage = class(TObject)
   private
@@ -44,7 +45,12 @@ type
       AData: Pointer);
     destructor Destroy; override;
 
-    class function MessageTypeToStr(AMessageType: TMessageType): String;
+    class function MessageTypeToStr(AMessage: TMessage): String;
+    class function CreateKey(ASender, ATarget: TObject; AKey: Integer): TMessage;
+    class function CreateMouse(ASender, ATarget: TObject; AWParam, ALParam: Int64): TMessage;
+    class function CreateRefresh(ASender, ATarget: TObject): TMessage;
+    class function CreateFocus(ASender, ATarget: TObject): TMessage;
+    class function CreateBlur(ASender, ATarget: TObject): TMessage;
 
     function Copy: TMessage;
 
@@ -88,9 +94,9 @@ begin
   inherited Destroy;
 end;
 
-class function TMessage.MessageTypeToStr(AMessageType: TMessageType): String;
+class function TMessage.MessageTypeToStr(AMessage: TMessage): String;
 begin
-  case AMessageType of
+  case AMessage.MessageType of
   mtNone:    Result:= 'mtNone';
   mtKey:     Result:= 'mtKey';
   mtMouse:   Result:= 'mtMouse';
@@ -102,6 +108,68 @@ begin
   mtCustom:  Result:= 'mtCustom';
   mtApplicationQuit: Result:= 'mtNone';
   end;
+end;
+
+class function TMessage.CreateKey(ASender, ATarget: TObject;
+  AKey: Integer): TMessage;
+begin
+  Result:= TMessage.Create(
+    mtKey,
+    ASender,
+    ATarget,
+    AKey,
+    0,
+    nil
+  );
+end;
+
+class function TMessage.CreateMouse(ASender, ATarget: TObject; AWParam,
+  ALParam: Int64): TMessage;
+begin
+  Result:= TMessage.Create(
+    mtMouse,
+    ASender,
+    ATarget,
+    AWParam,
+    ALParam,
+    nil
+  );
+end;
+
+class function TMessage.CreateRefresh(ASender, ATarget: TObject): TMessage;
+begin
+  Result:= TMessage.Create(
+    mtRefresh,
+    ASender,
+    ATarget,
+    0,
+    0,
+    nil
+  );
+end;
+
+class function TMessage.CreateFocus(ASender, ATarget: TObject): TMessage;
+begin
+  Result:= TMessage.Create(
+    mtFocus,
+    ASender,
+    ATarget,
+    0,
+    0,
+    nil
+  );
+end;
+
+class function TMessage.CreateBlur(ASender, ATarget: TObject): TMessage;
+begin
+  Result:= TMessage.Create(
+    mtBlur,
+    ASender,
+    ATarget,
+    0,
+    0,
+    nil
+  );
 end;
 
 function TMessage.Copy: TMessage;

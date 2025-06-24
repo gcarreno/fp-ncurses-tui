@@ -23,7 +23,7 @@
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
-            <OtherUnitFiles Value="../../src/application;../../src/forms;../../src/base;forms;../../src/messages;../../src/components"/>
+            <OtherUnitFiles Value="../../src/base;forms;../../src/ncurses;../../src/core"/>
             <UnitOutputDirectory Value="../../bin/lib/$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <Parsing>
@@ -49,7 +49,8 @@
           </Linking>
           <Other>
             <CustomOptions Value="-FcUTF8
--dDEBUG"/>
+-dDEBUG
+-Cg-"/>
           </Other>
         </CompilerOptions>
       </Item>
@@ -61,7 +62,7 @@
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
-            <OtherUnitFiles Value="../../src/application;../../src/forms;../../src/base;forms;../../src/messages;../../src/components"/>
+            <OtherUnitFiles Value="../../src/base;forms;../../src/ncurses;../../src/core"/>
             <UnitOutputDirectory Value="../../bin/lib/$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <CodeGeneration>
@@ -79,7 +80,8 @@
             <LinkSmart Value="True"/>
           </Linking>
           <Other>
-            <CustomOptions Value="-FcUTF8"/>
+            <CustomOptions Value="-FcUTF8
+-Cg-"/>
           </Other>
         </CompilerOptions>
       </Item>
@@ -98,39 +100,34 @@
         <UnitName Value="OneForm"/>
       </Unit>
       <Unit>
-        <Filename Value="../../src/application/tui.application.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="TUI.Application"/>
-      </Unit>
-      <Unit>
-        <Filename Value="../../src/forms/tui.form.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="TUI.Form"/>
-      </Unit>
-      <Unit>
-        <Filename Value="../../src/base/tui.basecomponent.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="TUI.BaseComponent"/>
-      </Unit>
-      <Unit>
         <Filename Value="forms/forms.main.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="Forms.Main"/>
       </Unit>
       <Unit>
-        <Filename Value="../../src/messages/tui.message.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="TUI.Message"/>
-      </Unit>
-      <Unit>
-        <Filename Value="../../src/components/tui.components.statictext.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="TUI.Components.StaticText"/>
-      </Unit>
-      <Unit>
         <Filename Value="../../src/base/tui.basetypes.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="TUI.BaseTypes"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../src/ncurses/tui.ncurses.window.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="TUI.Ncurses.Window"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../src/core/tui.core.application.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="TUI.Core.Application"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../src/core/tui.core.message.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="TUI.Core.Message"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../src/core/tui.core.form.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="TUI.Core.Form"/>
       </Unit>
     </Units>
   </ProjectOptions>
@@ -141,7 +138,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="../../src/application;../../src/forms;../../src/base;forms;../../src/messages;../../src/components"/>
+      <OtherUnitFiles Value="../../src/base;forms;../../src/ncurses;../../src/core"/>
       <UnitOutputDirectory Value="../../bin/lib/$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Linking>
@@ -150,7 +147,8 @@
       </Debugging>
     </Linking>
     <Other>
-      <CustomOptions Value="-FcUTF8"/>
+      <CustomOptions Value="-FcUTF8
+-Cg-"/>
     </Other>
   </CompilerOptions>
   <Debugging>
