@@ -41,7 +41,7 @@ jobs:
 
     - name: Upload binary (Ubuntu)
       if: ${{ (matrix.operating-system == 'ubuntu-latest')  &&  (matrix.lazarus-versions == 'stable') }}
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: examples
         path: |
