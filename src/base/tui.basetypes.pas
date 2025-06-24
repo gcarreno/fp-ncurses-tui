@@ -38,12 +38,10 @@ type
 
     procedure Initialize; virtual; abstract;
     procedure Run; virtual; abstract;
-
-    //function PollInput(out AMessage: TMessage): Boolean; virtual; abstract;
-    procedure PostMessage(const AMessage: TMessage); virtual; abstract;
-    //function GetMessage(out AMessage: TMessage): Boolean; virtual; abstract;
-    //procedure DispatchMessage(const AMessage: TMessage); virtual; abstract;
     procedure Terminate; virtual; abstract;
+
+    procedure PostMessage(const AMessage: TMessage); virtual; abstract;
+
 
     procedure Debug(const AMessage: String);
   published
@@ -63,11 +61,15 @@ type
     FInvalidated: Boolean;
     FIsFocused: Boolean;
     procedure CreateWindow(AX, AY, AWidth, AHeight: Integer);
+
   public
     constructor Create(AOwner: TBaseApplication);
     destructor Destroy; override;
 
     procedure Initialize; virtual; abstract;
+
+    procedure Focus; virtual; abstract;
+    procedure Blur; virtual; abstract;
 
     function AddComponent(AComponent: TBaseComponent): Integer;
     procedure Invalidate;

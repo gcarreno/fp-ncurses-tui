@@ -36,6 +36,9 @@ type
 
     procedure Paint; virtual;
 
+    procedure Focus; virtual;
+    procedure Blur; virtual;
+
     property X: Integer
       read FX;
     property Y: Integer
@@ -118,19 +121,19 @@ begin
   case AMessage.MessageType of
     mtFocus:
     begin
-      if not FIsFocused then
-      begin
-        FIsFocused:= True;
-        Invalidate;
-      end;
+      Focus;
     end;
     mtBlur:
     begin
-      if FIsFocused then
+      Blur;
+    end;
+    mtMouse:
+    begin
+      if not FIsFocused then
       begin
-        FIsFocused:= False;
-        Invalidate;
+        Focus;
       end;
+      { #todo -ogcarreno : Cycle through the components to determine if it's been clicked }
     end;
     mtRefresh: Paint;
   otherwise
@@ -168,6 +171,24 @@ begin
   begin
     refresh:= TMessage.CreateRefresh(Self, FComponents[index]);
     FParent.PostMessage(refresh);
+  end;
+end;
+
+procedure TForm.Focus;
+begin
+  if not FIsFocused then
+  begin
+    FIsFocused:= True;
+    Invalidate;
+  end;
+end;
+
+procedure TForm.Blur;
+begin
+  if FIsFocused then
+  begin
+    FIsFocused:= False;
+    Invalidate;
   end;
 end;
 

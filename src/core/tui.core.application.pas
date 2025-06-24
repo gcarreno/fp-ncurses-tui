@@ -37,12 +37,12 @@ type
 
     procedure Initialize; override;
     procedure Run; override;
+    procedure Terminate; override;
 
-    function AddForm(AForm: TBaseForm): Integer;
+    function  AddForm(AForm: TBaseForm): Integer;
     procedure RedrawAllForms;
     procedure ProcessMessages;
     procedure PostMessage(const AMessage: TMessage); override;
-    procedure Terminate; override;
 
     property HasColor: Boolean
       read FHasColor;
@@ -181,9 +181,11 @@ end;
 function TApplication.AddForm(AForm: TBaseForm): Integer;
 begin
   Result:= FForms.Add(AForm);
-  FFocusedForm:= TForm(AForm);
   AForm.Initialize;
+  if Assigned(FFocusedForm) then
+    PostMessage(TMessage.CreateBlur(nil, FFocusedForm));
   PostMessage(TMessage.CreateFocus(nil, AForm));
+  FFocusedForm:= TForm(AForm);
   ProcessMessages;
 end;
 
@@ -220,6 +222,7 @@ var
   key: Integer;
   event: MEVENT;
   return: Integer;
+  form: TForm;
 begin
   //Debug('TApplication.PollInput');
   key := getch;
@@ -232,9 +235,18 @@ begin
       return:= getmouse(@event);
       if return = OK then
       begin
+        form:= WindowAt(event.x, event.y);
+        if Assigned(form) and (FFocusedForm <> form) then
+        begin
+          PostMessage(TMessage.CreateBlur(nil, FFocusedForm));
+          ProcessMessages;
+          FFocusedForm:= form;
+        end
+        else
+          FFocusedForm:= nil;
         AMessage:= TMessage.CreateMouse(
           nil,
-          WindowAt(event.x, event.y),
+          form,
           event.bstate,
           event.y shl 16 or event.x
         );
