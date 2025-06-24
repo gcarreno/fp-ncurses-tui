@@ -196,6 +196,7 @@ var
   message: TMessage;
   {$IFDEF DEBUG}
   version: String;
+  notice: String;
   {$ENDIF}
 begin
   Debug('TApplication.RedrawAllForms');
@@ -209,11 +210,22 @@ begin
   version:= curses_version;
   mvwaddstr(stdscr, LINES-1, COLS-Length(version)-2, PAnsiChar(version));
   if Assigned(FFocusedForm) then
-    mvwaddstr(stdscr, LINES-1, 0, PAnsiChar(
-      Format('Focus: %s          ', [FFocusedForm.Name])
-    ))
+  begin
+    notice:= Format('[DEBUG] Cols: %d; Lines:%d; Form: %s      ',[
+      COLS,
+      LINES,
+      FFocusedForm.Name
+    ]);
+    mvwaddstr(stdscr, LINES-1, 0, PAnsiChar(notice));
+  end
   else
-    mvwaddstr(stdscr, LINES-1, 0, PAnsiChar('Focus: None          '));
+  begin
+    notice:= Format('[DEBUG] Cols: %d; Lines:%d; Form: None    ',[
+      COLS,
+      LINES
+      ]);
+    mvwaddstr(stdscr, LINES-1, 0, PAnsiChar(notice));
+  end;
   {$ENDIF}
 end;
 

@@ -40,10 +40,10 @@ var
   FLabel: TStaticText;
 begin
   FParent.Debug('TfrmMain.Initialize');
-  FX:= 2;
-  FY:= 2;
-  FWidth:= 45;
-  FHeight:= 15;
+  FX:= 0;
+  FY:= 0;
+  FWidth:= COLS - 1;
+  FHeight:= LINES - 3;
   FBorderStyle:= bsSingleLine;
   FName:= 'frmMain';
   FCaption:= 'Main Form';
@@ -55,7 +55,7 @@ begin
   FLabel.Name:= 'lblHello1';
   FLabel.Caption:= 'Label: lblHello1';
   FLabel.X:= 2;
-  FLabel.Y:= 5;
+  FLabel.Y:= 2;
   FLabel.Width:= Length(FLabel.Caption);
   FLabel.Height:= 1;
   AddComponent(FLabel);
@@ -65,7 +65,7 @@ begin
   FLabel.Name:= 'lblHello2';
   FLabel.Caption:= 'Label: lblHello2';
   FLabel.X:= 2;
-  FLabel.Y:= 6;
+  FLabel.Y:= 4;
   FLabel.Width:= Length(FLabel.Caption);
   FLabel.Height:= 1;
   AddComponent(FLabel);

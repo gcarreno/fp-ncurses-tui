@@ -34,10 +34,10 @@ implementation
 
 procedure TfrmMain.Initialize;
 begin
-  FX:= 2;
-  FY:= 2;
-  FWidth:= 45;
-  FHeight:= 15;
+  FX:= 0;
+  FY:= 0;
+  FWidth:= COLS - 1;
+  FHeight:= LINES - 3;
   FBorderStyle:= bsSingleLine;
   FName:= 'frmMain';
   FCaption:= 'Main Form';

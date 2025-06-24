@@ -34,10 +34,10 @@ implementation
 
 procedure TForm2.Initialize;
 begin
-  FX:= 47;
-  FY:= 2;
-  FWidth:= 45;
-  FHeight:= 15;
+  FX:= COLS div 2;
+  FY:= 0;
+  FWidth:= COLS div 2;
+  FHeight:= LINES -2;
   FBorderStyle:= bsSingleLine;
   FName:= 'Form2';
   FCaption:= 'Form Two';

@@ -10,5 +10,11 @@
 This is an attempt to recreate, as much as possible, the pattern used in the `LCL` but instead of a graphic environment, we wrap the well known `ncurses` lib.
 
 ## Screen Shots
-
+**One Form**
 ![fp-ncurses-tui-example-one-form](img/fp-ncurses-tui-example-one-form.png)
+**Two Forms**
+![fp-ncurses-tui-example-two-forms](img/fp-ncurses-tui-example-two-forms.png)
+**Component Label**
+![fp-ncurses-tui-example-component-label](img/fp-ncurses-tui-example-component-label.png)
+**Component Button**
+![fp-ncurses-tui-example-component-button](img/fp-ncurses-tui-example-component-button.png)
