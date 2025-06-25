@@ -34,7 +34,7 @@ jobs:
         lazarus-version: ${{ matrix.lazarus-versions }}
         with-cache: false
 
-    - name: Build the Examples
+    - name: Build the Examples (Ubuntu)
       if: ${{ matrix.operating-system == 'ubuntu-latest' }}
       run: |
         lazbuild -B --bm=Release "examples/one-form/oneform.lpi"
@@ -64,9 +64,8 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
-    - name: Set output
-      id: vars
-      run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
+    - name: Set env
+      run: echo "tag=${{ github.ref_name }}" >> "$GITHUB_ENV"
 
     - name: Download the Release binary
       uses: actions/download-artifact@v4
@@ -84,12 +83,20 @@ jobs:
         chmod +x twoforms
         chmod +x component-label
         chmod +x component-button
-        tar -zcvf examples-${{ steps.vars.outputs.tag }}-x86_64-linux.tar.gz oneform twoforms component-label component-button
+        tar -zcvf examples-${{ env.tag }}-x86_64-linux.tar.gz oneform twoforms component-label component-button
+
+    - name: Generate Release Notes
+      id: git-cliff
+      uses: orhun/git-cliff-action@v4
+      with:
+        config: cliff.toml
+        args: --latest  --strip header
+
     - name: Create GitHub release
       uses: softprops/action-gh-release@v2
       with:
-        name: Examples ${{ steps.vars.outputs.tag }}
-        body_path: CHANGELOG.md
+        name: Examples ${{ env.tag }}
+        body: ${{ steps.git-cliff.outputs.content }}
         files: |
           examples-linux/*.tar.gz
       env:
