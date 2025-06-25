@@ -90,12 +90,12 @@ jobs:
       uses: orhun/git-cliff-action@v4
       with:
         config: cliff.toml
-        args: --latest  --strip header
+        args: --latest --strip header
 
     - name: Create GitHub release
       uses: softprops/action-gh-release@v2
       with:
-        name: Examples ${{ env.tag }}
+        name: fp-ncurses-tui ${{ env.tag }}
         body: ${{ steps.git-cliff.outputs.content }}
         files: |
           examples-linux/*.tar.gz

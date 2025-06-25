@@ -1,4 +1,5 @@
 # Free Pascal `ncurses` wrapper
+[![Build Status](https://github.com/gcarreno/fp-ncurses-tui/actions/workflows/main.yaml/badge.svg?branch=main)](https://github.com/gcarreno/fp-ncurses-tui/actions)
 [![Supports Linux](https://img.shields.io/badge/support-Linux-yellow?logo=Linux)](https://github.com/gcarreno/fp-ncurses-tui/releases/latest)
 [![License](https://img.shields.io/github/license/gcarreno/fp-ncurses-tui)](https://github.com/gcarreno/fp-ncurses-tui/blob/main/LICENSE)
 [![Latest Release](https://img.shields.io/github/v/release/gcarreno/fp-ncurses-tui?label=latest%20release)](https://github.com/gcarreno/fp-ncurses-tui/releases/latest)
