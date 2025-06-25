@@ -24,7 +24,7 @@ jobs:
 
     steps:
     - name: Checkout Repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         submodules: true
 
@@ -62,7 +62,7 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Set output
       id: vars
@@ -74,7 +74,7 @@ jobs:
         name: examples
 
     - name: List files
-      run: ls -alF examples
+      run: ls -alFR examples
 
     - name: Create release files
       run: |
