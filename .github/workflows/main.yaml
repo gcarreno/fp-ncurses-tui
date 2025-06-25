@@ -46,7 +46,7 @@ jobs:
       if: ${{ (matrix.operating-system == 'ubuntu-latest')  &&  (matrix.lazarus-versions == 'stable') }}
       uses: actions/upload-artifact@v4
       with:
-        name: examples
+        name: examples-linux
         path: |
           bin/oneform
           bin/twoforms
@@ -71,14 +71,14 @@ jobs:
     - name: Download the Release binary
       uses: actions/download-artifact@v4
       with:
-        name: examples
+        name: examples-linux
 
     - name: List files
-      run: ls -alFR examples
+      run: ls -alFR examples-linux
 
     - name: Create release files
       run: |
-        cd examples
+        cd examples-linux
         chmod +x oneform
         chmod +x twoforms
         chmod +x component-label
