@@ -74,7 +74,7 @@ jobs:
         name: examples-linux
 
     - name: List files
-      run: ls -alFR examples-linux
+      run: ls -alFR
 
     - name: Create release files
       run: |
@@ -90,6 +90,6 @@ jobs:
         name: Examples ${{ steps.vars.outputs.tag }}
         body_path: CHANGELOG.md
         files: |
-          examples/*.tar.gz
+          examples-linux/*.tar.gz
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
