@@ -70,6 +70,8 @@ jobs:
 
     - name: Download the Release binary
       uses: actions/download-artifact@v4
+      with:
+        name: examples
 
     - name: List files
       run: ls -alF examples
