@@ -19,7 +19,7 @@ jobs:
 
     strategy:
       matrix:
-        operating-system: [ ubuntu-latest ]
+        operating-system: [ ubuntu-latest, macos-latest ]
         lazarus-versions: [ stable ]
 
     steps:
@@ -52,6 +52,14 @@ jobs:
           bin/twoforms
           bin/component-label
           bin/component-button
+    - name: Build the Examples (macOS)
+      if: ${{ matrix.operating-system == 'macos-latest' }}
+      run: |
+        lazbuild -B --bm=Release "examples/one-form/oneform.lpi"
+        lazbuild -B --bm=Release "examples/two-forms/twoforms.lpi"
+        lazbuild -B --bm=Release "examples/component-label/component-label.lpi"
+        lazbuild -B --bm=Release "examples/component-button/component-button.lpi"
+
 
   package-release:
     if: contains(github.ref, '/tags/')
